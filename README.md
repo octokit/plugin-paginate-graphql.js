@@ -55,12 +55,12 @@ const query = `query repositoryIssues($owner:String!,$repo:String!,$since:DateTi
 }`;
 const {
   repository: {
-    issues: { nodes: issues }
-  }
+    issues: { nodes: issues },
+  },
 } = await octokit.paginate(query, {
   owner: "octocat",
   repo: "hello-world",
-  since: "2019-10-01T00:00:00.000Z"
+  since: "2019-10-01T00:00:00.000Z",
 });
 ```
 
