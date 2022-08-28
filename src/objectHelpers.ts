@@ -19,12 +19,12 @@ const visit = (object: any, visitor: Visitor, path: string[] = []) => {
 };
 
 /**
- * The interfaces of the "get" and "set" functions orentiate themselves
- * on the lodash-functions by the same name:
+ * The interfaces of the "get" and "set" functions are equal to those of lodash:
  * https://lodash.com/docs/4.17.15#get
  * https://lodash.com/docs/4.17.15#set
  *
- * They are cut down to our purposes, but could be replaced by the lodash version
+ * They are cut down to our purposes, but could be replaced by the lodash calls
+ * if we ever want to have that dependency.
  */
 const get = (object: any, path: string[]) => {
   return path.reduce((current, nextProperty) => current[nextProperty], object);
