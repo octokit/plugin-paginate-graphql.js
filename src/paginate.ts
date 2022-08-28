@@ -1,10 +1,15 @@
 import { Octokit } from "@octokit/core";
 import { findPageInfos } from "./findPageInfos";
+import { mergeResponses } from "./mergeResponses";
+import { PageInfo } from "./types/PageInfo";
 
 type CursorFactory = {
   create: () => string;
 };
 type QueryBuilder = (cursor: CursorFactory) => string;
+
+const hasNextPage = (pageInfos: PageInfo[]) =>
+  pageInfos.findIndex((pageInfo) => pageInfo.hasNextPage) !== -1;
 
 const paginate = (octokit: Octokit) => {
   return async <T = any>(queryBuilder: QueryBuilder): Promise<T> => {
@@ -24,8 +29,8 @@ const paginate = (octokit: Octokit) => {
       .join(", ");
 
     let nextPageExists = true;
-
     let mergedResponse: T = {} as T;
+
     while (nextPageExists) {
       const response = await octokit.graphql<T>(
         `query paginate(${foundCursors}) {${query}}`
@@ -33,12 +38,9 @@ const paginate = (octokit: Octokit) => {
 
       const pageInfos = findPageInfos(response);
       // deepMerge Objects
-      mergedResponse = Object.assign(mergedResponse, response);
+      mergedResponse = mergeResponses(mergedResponse, response);
 
-      if (
-        pageInfos.length === 0 ||
-        pageInfos.findIndex((pageInfo) => pageInfo.hasNextPage) === -1
-      ) {
+      if (!hasNextPage(pageInfos)) {
         nextPageExists = false;
         break;
       }
