@@ -142,4 +142,64 @@ describe("pagination", () => {
       },
     });
   });
+
+  it(".paginate() always passes the next cursor to the next query.", async (): Promise<void> => {
+    const givenResponse1: TestResponseType = {
+      repository: {
+        issues: {
+          nodes: [{ title: "Issue 1" }],
+          pageInfo: { hasNextPage: true, endCursor: "endCursor1" },
+        },
+      },
+    };
+    const givenResponse2: TestResponseType = {
+      repository: {
+        issues: {
+          nodes: [{ title: "Issue 2" }],
+          pageInfo: { hasNextPage: true, endCursor: "endCursor2" },
+        },
+      },
+    };
+    const givenResponse3: TestResponseType = {
+      repository: {
+        issues: {
+          nodes: [{ title: "Issue 3" }],
+          pageInfo: { hasNextPage: false, endCursor: "endCursor3" },
+        },
+      },
+    };
+    const { octokit, getCalledQuery, getCallCount, getPassedVariablesForCall } =
+      MockOctokit({
+        responses: [givenResponse1, givenResponse2, givenResponse3],
+      });
+
+    let issuesCursor: string | undefined;
+
+    await octokit.paginateGraphql<TestResponseType>((cursor) => {
+      issuesCursor = cursor.create();
+      return `
+          repository(owner: "octokit", name: "rest.js") {
+            issues(first: 10, after: ${issuesCursor}) {
+              nodes {
+                title
+              }
+              pageInfo {
+                hasNextPage
+                endCursor
+              }
+            }
+          }
+        `;
+    });
+
+    const cursorVariable = issuesCursor!.replace(/\$/g, "");
+    expect(getCallCount()).toBe(3);
+    expect(getPassedVariablesForCall(1)).toBeUndefined();
+    expect(getPassedVariablesForCall(2)).toEqual({
+      [cursorVariable]: "endCursor1",
+    });
+    expect(getPassedVariablesForCall(3)).toEqual({
+      [cursorVariable]: "endCursor2",
+    });
+  });
 });

@@ -28,9 +28,7 @@ const MockOctokit = ({ responses = [{}] }: { responses?: any[] } = {}) => {
   return {
     octokit,
     getCallCount: () => callCount,
-    getCalledQueries: () => calledQueries,
     getCalledQuery: (index: number) => calledQueries[index - 1],
-    getPassedVariables: () => passedVariables,
     getPassedVariablesForCall: (index: number) => passedVariables[index - 1],
   };
 };
