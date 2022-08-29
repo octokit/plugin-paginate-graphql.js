@@ -1,21 +1,17 @@
 import { PageInfo } from "./types/PageInfo";
-
-const isObject = (value: any) =>
-  Object.prototype.toString.call(value) === "[object Object]";
+import { visit } from "./objectHelpers";
 
 const findPageInfos = (responseData: any): PageInfo[] => {
-  let newPageInfos = [];
-  for (const key of Object.keys(responseData)) {
-    if (key.includes("pageInfo")) {
-      // No need to go deeper as we do not support nested pages
-      return [responseData[key]];
-    }
+  let newPageInfos: PageInfo[] = [];
 
-    // Only traverse objects as we do not support nested pages
-    if (isObject(responseData[key])) {
-      newPageInfos.push(...findPageInfos(responseData[key]));
-    }
-  }
+  visit(responseData, {
+    onObject: (object) => {
+      if (Boolean(object.pageInfo)) {
+        newPageInfos.push(object.pageInfo);
+      }
+    },
+  });
+
   return newPageInfos;
 };
 
