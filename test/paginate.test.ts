@@ -20,7 +20,7 @@ describe("pagination", () => {
     });
 
     const actualResponse = await octokit.paginateGraphql(
-      (cursor) => `
+      (cursor) => `{
       repository(owner: "octokit", name: "rest.js") {
         issues(first: 10, after: ${cursor.create()}) {
           nodes {
@@ -32,7 +32,7 @@ describe("pagination", () => {
           }
         }
       }
-      `
+    }`
     );
     expect(actualResponse).toEqual(givenResponse);
   });
@@ -43,7 +43,7 @@ describe("pagination", () => {
     });
 
     await octokit.paginateGraphql<TestResponseType>((cursor) => {
-      return `
+      return `{
           repository(owner: "octokit", name: "rest.js") {
             issues(first: 10, after: ${cursor.create()}) {
               nodes {
@@ -55,7 +55,7 @@ describe("pagination", () => {
               }
             }
           }
-      `;
+        }`;
     });
 
     const expected = `
@@ -84,19 +84,19 @@ describe("pagination", () => {
         responses,
       });
     const actualResponse = await octokit.paginateGraphql<TestResponseType>(
-      (cursor) => `
-      repository(owner: "octokit", name: "rest.js") {
-        issues(first: 10, after: ${cursor.create()}) {
-          nodes {
-            title
-          }
-          pageInfo {
-            hasNextPage
-            endCursor
+      (cursor) => `{
+        repository(owner: "octokit", name: "rest.js") {
+          issues(first: 10, after: ${cursor.create()}) {
+            nodes {
+              title
+            }
+            pageInfo {
+              hasNextPage
+              endCursor
+            }
           }
         }
-      }
-      `
+      }`
     );
 
     expect(getCallCount()).toBe(3);
@@ -125,7 +125,7 @@ describe("pagination", () => {
 
     await octokit.paginateGraphql<TestResponseType>((cursor) => {
       issuesCursor = cursor.create();
-      return `
+      return `{
           repository(owner: "octokit", name: "rest.js") {
             issues(first: 10, after: ${issuesCursor}) {
               nodes {
@@ -137,7 +137,7 @@ describe("pagination", () => {
               }
             }
           }
-        `;
+        }`;
     });
 
     const cursorVariable = issuesCursor!.replace(/\$/g, "");
@@ -203,6 +203,29 @@ describe("pagination", () => {
       namedCursor: "endCursor1",
       organization: "octokit",
     });
+  });
+
+  it(".paginate() simply executes query if no cursors given.", async (): Promise<void> => {
+    const { octokit, getCalledQuery, getPassedVariablesForCall } = MockOctokit({
+      responses: [{}],
+    });
+
+    const simpleQuery = `{
+        repository(owner: "octokit", name: "plugin-paginate-graphql.js") {
+          repositoryTopics(first: 3) {
+            nodes{
+              topic
+            }
+            pageInfo {
+              hasNextPage
+              endCursor
+            }
+          }
+        }
+      }`;
+    const result = await octokit.paginateGraphql((cursor) => simpleQuery);
+
+    expectQuery(getCalledQuery(1)).toEqual(simpleQuery);
   });
 });
 

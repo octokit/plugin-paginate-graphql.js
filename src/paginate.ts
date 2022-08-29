@@ -56,7 +56,7 @@ const paginate = (octokit: Octokit) => {
 };
 
 function ensureQueryHeader(query: string, cursors: string[]) {
-  if (query.trim().startsWith("query")) {
+  if (query.trim().startsWith("query") || cursors.length === 0) {
     return query;
   }
 
@@ -64,7 +64,7 @@ function ensureQueryHeader(query: string, cursors: string[]) {
     .map((cursorName) => `${asCursorVariable(cursorName)}: String`)
     .join(", ");
 
-  return `query paginate(${cursorQueryArguments}) {${query}}`;
+  return `query paginate(${cursorQueryArguments}) ${query}`;
 }
 
 export { paginate };
