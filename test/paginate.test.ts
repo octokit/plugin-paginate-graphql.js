@@ -1,4 +1,4 @@
-import { PageInfo } from "../src/types/PageInfo";
+import { PageInfo } from "../src/PageInfo";
 import { expectQuery } from "./testHelpers/expectQuery";
 import { MockOctokit } from "./testHelpers/MockOctokit";
 
@@ -79,10 +79,7 @@ describe("pagination", () => {
 
   it(".paginate() merges the result of all pages and returns the last pageInfo Object.", async (): Promise<void> => {
     const responses = createResponseObjects(3);
-    const { octokit, getCalledQuery, getCallCount, getPassedVariablesForCall } =
-      MockOctokit({
-        responses,
-      });
+    const { octokit, getCallCount } = MockOctokit({ responses });
     const actualResponse = await octokit.paginateGraphql<TestResponseType>(
       (cursor) => `{
         repository(owner: "octokit", name: "rest.js") {
@@ -121,13 +118,10 @@ describe("pagination", () => {
       responses,
     });
 
-    let issuesCursor: string | undefined;
-
     await octokit.paginateGraphql<TestResponseType>((cursor) => {
-      issuesCursor = cursor.create();
       return `{
           repository(owner: "octokit", name: "rest.js") {
-            issues(first: 10, after: ${issuesCursor}) {
+            issues(first: 10, after: ${cursor.create("cursorName")}) {
               nodes {
                 title
               }
@@ -140,15 +134,10 @@ describe("pagination", () => {
         }`;
     });
 
-    const cursorVariable = issuesCursor!.replace(/\$/g, "");
     expect(getCallCount()).toBe(3);
     expect(getPassedVariablesForCall(1)).toBeUndefined();
-    expect(getPassedVariablesForCall(2)).toEqual({
-      [cursorVariable]: "endCursor1",
-    });
-    expect(getPassedVariablesForCall(3)).toEqual({
-      [cursorVariable]: "endCursor2",
-    });
+    expect(getPassedVariablesForCall(2)).toEqual({ cursorName: "endCursor1" });
+    expect(getPassedVariablesForCall(3)).toEqual({ cursorName: "endCursor2" });
   });
 
   it(".paginate() allows passing of initial arguments with the help of named cursors.", async (): Promise<void> => {
@@ -223,22 +212,72 @@ describe("pagination", () => {
           }
         }
       }`;
-    const result = await octokit.paginateGraphql((cursor) => simpleQuery);
+
+    await octokit.paginateGraphql((cursor) => simpleQuery);
 
     expectQuery(getCalledQuery(1)).toEqual(simpleQuery);
   });
-});
 
-function createResponseObjects(amount: number): TestResponseType[] {
-  return Array.from(Array(amount)).map((value, index) => ({
-    repository: {
-      issues: {
-        nodes: [{ title: `Issue ${index + 1}` }],
-        pageInfo: {
-          hasNextPage: amount > index + 1,
-          endCursor: `endCursor${index + 1}`,
+  it('paginate() paginates backwards using the "startCursor" and "hasPreviousPage" if given.', async (): Promise<void> => {
+    const responses = createResponseObjects(2, "backward");
+    const { octokit, getCalledQuery, getCallCount, getPassedVariablesForCall } =
+      MockOctokit({
+        responses,
+      });
+    const actualResponse = await octokit.paginateGraphql<TestResponseType>(
+      (cursor) => `{
+        repository(owner: "octokit", name: "rest.js") {
+          issues(first: 10, after: ${cursor.create("cursorName")}) {
+            nodes {
+              title
+            }
+            pageInfo {
+              hasPreviousPage
+              startCursor
+            }
+          }
+        }
+      }`
+    );
+
+    expect(getCallCount()).toBe(2);
+    expect(actualResponse).toEqual({
+      repository: {
+        issues: {
+          nodes: [{ title: "Issue 1" }, { title: "Issue 2" }],
+          pageInfo: { hasPreviousPage: false, startCursor: "startCursor2" },
         },
       },
-    },
-  }));
+    });
+    expect(getPassedVariablesForCall(2)).toEqual({
+      cursorName: "startCursor1",
+    });
+  });
+});
+
+type Direction = "forward" | "backward";
+function createResponseObjects(
+  amount: number,
+  direction: Direction = "forward"
+): TestResponseType[] {
+  return Array.from(Array(amount)).map((value, index) => {
+    const pageInfo: PageInfo =
+      direction === "forward"
+        ? {
+            hasNextPage: amount > index + 1,
+            endCursor: `endCursor${index + 1}`,
+          }
+        : {
+            hasPreviousPage: amount > index + 1,
+            startCursor: `startCursor${index + 1}`,
+          };
+    return {
+      repository: {
+        issues: {
+          nodes: [{ title: `Issue ${index + 1}` }],
+          pageInfo,
+        },
+      },
+    };
+  });
 }

@@ -1,7 +1,7 @@
 import { Octokit } from "@octokit/core";
 import { findPageInfos } from "./findPageInfos";
 import { mergeResponses } from "./mergeResponses";
-import { PageInfo } from "./types/PageInfo";
+import { getCursorFrom, hasAnotherPage, PageInfo } from "./PageInfo";
 
 type CursorFactory = {
   create: (cursorName?: string) => string;
@@ -9,7 +9,7 @@ type CursorFactory = {
 type QueryBuilder = (cursor: CursorFactory) => string;
 
 const hasNextPage = (pageInfos: PageInfo[]) =>
-  pageInfos.findIndex((pageInfo) => pageInfo.hasNextPage) !== -1;
+  pageInfos.findIndex((pageInfo) => hasAnotherPage(pageInfo)) !== -1;
 
 const asCursorVariable = (cursorName: string) => `$${cursorName}`;
 const paginate = (octokit: Octokit) => {
@@ -46,7 +46,7 @@ const paginate = (octokit: Octokit) => {
       parameters = {
         ...parameters,
         ...cursors.reduce((acc: Record<string, any>, cursorName, index) => {
-          acc[cursorName] = pageInfos[index].endCursor;
+          acc[cursorName] = getCursorFrom(pageInfos[index]);
           return acc;
         }, {}),
       };
