@@ -1,4 +1,4 @@
-import { PageInfo } from "./types/PageInfo";
+import { PageInfo } from "./PageInfo";
 import { visit } from "./objectHelpers";
 
 const findPageInfos = (responseData: any): PageInfo[] => {
