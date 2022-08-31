@@ -8,10 +8,18 @@ const mergeResponses = (response1: any, response2: any) => {
   visit(response1, {
     onObject: (object, path) => {
       if (object.hasOwnProperty("pageInfo")) {
-        // Overwrite both the nodes and the pageInfo properties
-        set(response2, [...path, "nodes"], (values: any) => {
-          return [...object["nodes"], ...values];
-        });
+        if (object.hasOwnProperty("nodes")) {
+          // Overwrite both the nodes and the pageInfo properties
+          set(response2, [...path, "nodes"], (values: any) => {
+            return [...object["nodes"], ...values];
+          });
+        }
+
+        if (object.hasOwnProperty("edges")) {
+          set(response2, [...path, "edges"], (values: any) => {
+            return [...object["edges"], ...values];
+          });
+        }
         object.pageInfo = get(response2, [...path, "pageInfo"]);
       }
     },

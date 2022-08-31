@@ -5,7 +5,8 @@ import { MockOctokit } from "./testHelpers/MockOctokit";
 type TestResponseType = {
   repository: {
     issues: {
-      nodes: Array<{ title: string }>;
+      nodes?: Array<{ title: string }>;
+      edges?: Array<{ node: { title: string } }>;
       pageInfo: PageInfo;
     };
   };
@@ -13,7 +14,7 @@ type TestResponseType = {
 
 describe("pagination", () => {
   it(".paginate() returns the response data if only one page exists.", async (): Promise<void> => {
-    const [givenResponse] = createResponseObjects(1);
+    const [givenResponse] = createResponsePages({ amount: 1 });
 
     const { octokit } = MockOctokit({
       responses: [givenResponse],
@@ -39,7 +40,7 @@ describe("pagination", () => {
 
   it(".paginate() adds query function if non given.", async () => {
     const { octokit, getCalledQuery } = MockOctokit({
-      responses: createResponseObjects(1),
+      responses: createResponsePages({ amount: 1 }),
     });
 
     await octokit.paginateGraphql<TestResponseType>((cursor) => {
@@ -78,7 +79,7 @@ describe("pagination", () => {
   });
 
   it(".paginate() merges the result of all pages and returns the last pageInfo Object.", async (): Promise<void> => {
-    const responses = createResponseObjects(3);
+    const responses = createResponsePages({ amount: 3 });
     const { octokit, getCallCount } = MockOctokit({ responses });
     const actualResponse = await octokit.paginateGraphql<TestResponseType>(
       (cursor) => `{
@@ -112,7 +113,7 @@ describe("pagination", () => {
   });
 
   it(".paginate() always passes the next cursor to the next query.", async (): Promise<void> => {
-    const responses = createResponseObjects(3);
+    const responses = createResponsePages({ amount: 3 });
 
     const { octokit, getCallCount, getPassedVariablesForCall } = MockOctokit({
       responses,
@@ -141,7 +142,7 @@ describe("pagination", () => {
   });
 
   it(".paginate() allows passing of initial arguments with the help of named cursors.", async (): Promise<void> => {
-    const responses = createResponseObjects(2);
+    const responses = createResponsePages({ amount: 2 });
 
     const { octokit, getCalledQuery, getPassedVariablesForCall } = MockOctokit({
       responses,
@@ -219,11 +220,13 @@ describe("pagination", () => {
   });
 
   it('paginate() paginates backwards using the "startCursor" and "hasPreviousPage" if given.', async (): Promise<void> => {
-    const responses = createResponseObjects(2, "backward");
-    const { octokit, getCalledQuery, getCallCount, getPassedVariablesForCall } =
-      MockOctokit({
-        responses,
-      });
+    const responses = createResponsePages({
+      amount: 2,
+      direction: "backward",
+    });
+    const { octokit, getCallCount, getPassedVariablesForCall } = MockOctokit({
+      responses,
+    });
     const actualResponse = await octokit.paginateGraphql<TestResponseType>(
       (cursor) => `{
         repository(owner: "octokit", name: "rest.js") {
@@ -253,13 +256,59 @@ describe("pagination", () => {
       cursorName: "startCursor1",
     });
   });
+
+  it("paginate() also includes data from edges.", async (): Promise<void> => {
+    const responses = createResponsePages({
+      amount: 2,
+      dataProps: ["edges"],
+    });
+    const { octokit, getCallCount, getPassedVariablesForCall } = MockOctokit({
+      responses,
+    });
+    const actualResponse = await octokit.paginateGraphql<TestResponseType>(
+      (cursor) => `{
+        repository(owner: "octokit", name: "rest.js") {
+          issues(first: 10, after: ${cursor.create()}) {
+            edges {
+              node {
+                title
+              }
+            }
+            pageInfo {
+              hasNextPage
+              endCursor
+            }
+          }
+        }
+      }`
+    );
+
+    expect(getCallCount()).toBe(2);
+    expect(actualResponse).toEqual({
+      repository: {
+        issues: {
+          edges: [
+            { node: { title: "Issue 1" } },
+            { node: { title: "Issue 2" } },
+          ],
+          pageInfo: { hasNextPage: false, endCursor: "endCursor2" },
+        },
+      },
+    });
+  });
 });
 
 type Direction = "forward" | "backward";
-function createResponseObjects(
-  amount: number,
-  direction: Direction = "forward"
-): TestResponseType[] {
+type DataKeys = "nodes" | "edges";
+function createResponsePages({
+  amount,
+  direction = "forward",
+  dataProps = ["nodes"],
+}: {
+  amount: number;
+  direction?: Direction;
+  dataProps?: DataKeys[];
+}): TestResponseType[] {
   return Array.from(Array(amount)).map((value, index) => {
     const pageInfo: PageInfo =
       direction === "forward"
@@ -271,10 +320,16 @@ function createResponseObjects(
             hasPreviousPage: amount > index + 1,
             startCursor: `startCursor${index + 1}`,
           };
+
+    const data = { title: `Issue ${index + 1}` };
+    const issues: any = {};
+    if (dataProps.includes("nodes")) issues["nodes"] = [data];
+    if (dataProps.includes("edges")) issues["edges"] = [{ node: data }];
+
     return {
       repository: {
         issues: {
-          nodes: [{ title: `Issue ${index + 1}` }],
+          ...issues,
           pageInfo,
         },
       },
