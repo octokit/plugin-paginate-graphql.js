@@ -1,8 +1,8 @@
-import { findPageInfos } from "../src/findPageInfos";
+import { extractPageInfos } from "../src/extractPageInfos";
 
-describe("findPageInfos()", (): void => {
+describe("extractPageInfos()", (): void => {
   it("returns empty array if no pageInfos on object exist.", async (): Promise<void> => {
-    expect(findPageInfos({ test: { nested: "value" } })).toEqual([]);
+    expect(extractPageInfos({ test: { nested: "value" } })).toEqual([]);
   });
 
   it("returns single pageInfo if exists", () => {
@@ -17,7 +17,7 @@ describe("findPageInfos()", (): void => {
       },
     };
 
-    expect(findPageInfos(queryResult)).toEqual([
+    expect(extractPageInfos(queryResult)).toEqual([
       { hasNextPage: true, endCursor: "endCursor" },
     ]);
   });
@@ -38,7 +38,7 @@ describe("findPageInfos()", (): void => {
       },
     };
 
-    expect(findPageInfos(queryResult)).toEqual([
+    expect(extractPageInfos(queryResult)).toEqual([
       { hasNextPage: true, endCursor: "endCursor1" },
       { hasNextPage: true, endCursor: "endCursor2" },
     ]);

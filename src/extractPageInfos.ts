@@ -1,7 +1,7 @@
 import { PageInfo } from "./PageInfo";
 import { visit } from "./objectHelpers";
 
-const findPageInfos = (responseData: any): PageInfo[] => {
+const extractPageInfos = (responseData: any): PageInfo[] => {
   let newPageInfos: PageInfo[] = [];
 
   visit(responseData, {
@@ -15,4 +15,4 @@ const findPageInfos = (responseData: any): PageInfo[] => {
   return newPageInfos;
 };
 
-export { findPageInfos };
+export { extractPageInfos };
