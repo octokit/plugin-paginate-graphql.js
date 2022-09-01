@@ -219,7 +219,7 @@ describe("pagination", () => {
     expectQuery(getCalledQuery(1)).toEqual(simpleQuery);
   });
 
-  it('paginate() paginates backwards using the "startCursor" and "hasPreviousPage" if given.', async (): Promise<void> => {
+  it('.paginate() paginates backwards using the "startCursor" and "hasPreviousPage" if given.', async (): Promise<void> => {
     const responses = createResponsePages({
       amount: 2,
       direction: "backward",
@@ -257,7 +257,7 @@ describe("pagination", () => {
     });
   });
 
-  it("paginate() also includes data from edges.", async (): Promise<void> => {
+  it(".paginate() also includes data from edges.", async (): Promise<void> => {
     const responses = createResponsePages({
       amount: 2,
       dataProps: ["edges"],
@@ -295,6 +295,47 @@ describe("pagination", () => {
         },
       },
     });
+  });
+
+  it(".paginate.iterator() lets users iterate over pages step by step.", async (): Promise<void> => {
+    const responses = createResponsePages({ amount: 3 });
+    const { octokit } = MockOctokit({ responses });
+    const pageIterator =
+      await octokit.paginateGraphql.iterator<TestResponseType>(
+        (cursor) => `{
+        repository(owner: "octokit", name: "rest.js") {
+          issues(first: 10, after: ${cursor.create()}) {
+            nodes {
+              title
+            }
+            pageInfo {
+              hasNextPage
+              endCursor
+            }
+          }
+        }
+      }`
+      );
+
+    const allIssues: any[] = [];
+    const allPageInfos: PageInfo[] = [];
+    for await (const result of pageIterator) {
+      allIssues.push(result!.repository.issues.nodes![0]);
+      allPageInfos.push(result!.repository.issues.pageInfo);
+    }
+
+    expect(allIssues).toHaveLength(3);
+    expect(allIssues).toEqual([
+      { title: "Issue 1" },
+      { title: "Issue 2" },
+      { title: "Issue 3" },
+    ]);
+
+    expect(allPageInfos).toEqual([
+      { hasNextPage: true, endCursor: "endCursor1" },
+      { hasNextPage: true, endCursor: "endCursor2" },
+      { hasNextPage: false, endCursor: "endCursor3" },
+    ]);
   });
 });
 
