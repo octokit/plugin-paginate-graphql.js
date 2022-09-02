@@ -22,9 +22,9 @@ const getCursorFrom = (pageInfo: PageInfo): string =>
 const hasAnotherPage = (pageInfo: PageInfo): boolean =>
   isForwardSearch(pageInfo) ? pageInfo.hasNextPage : pageInfo.hasPreviousPage;
 
-const hasNextPage = (pageInfos: PageInfo[]) =>
+const anyHasAnotherPage = (pageInfos: PageInfo[]) =>
   pageInfos.findIndex((pageInfo) => hasAnotherPage(pageInfo)) !== -1;
 
-export { getCursorFrom, hasNextPage };
+export { getCursorFrom, hasAnotherPage, anyHasAnotherPage };
 
 export type { PageInfo };

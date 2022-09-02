@@ -1,6 +1,7 @@
 import fetchMock from "fetch-mock";
 import { PageInfo } from "../src/PageInfo";
 import { expectQuery } from "./testHelpers/expectQuery";
+import { MissingCursorChange } from "../src/errors";
 import { MockOctokit, PatchedOctokit } from "./testHelpers/MockOctokit";
 import {
   createResponsePages,
@@ -331,6 +332,35 @@ describe("pagination", () => {
       { hasNextPage: true, endCursor: "endCursor2" },
       { hasNextPage: false, endCursor: "endCursor3" },
     ]);
+  });
+
+  it("paginate() throws error if cursors do not change between calls.", async (): Promise<void> => {
+    const [responsePage1, responsePage2] = createResponsePages({ amount: 2 });
+    responsePage2.repository.issues.pageInfo = {
+      ...responsePage1.repository.issues.pageInfo,
+    };
+    const { octokit } = MockOctokit({
+      responses: [responsePage1, responsePage2],
+    });
+
+    const requestFunc = async () =>
+      await octokit.paginateGraphql(
+        (cursor) => `{
+        repository(owner: "octokit", name: "rest.js") {
+          issues(first: 10, after: ${cursor.create()}) {
+            nodes {
+              title
+            }
+            pageInfo {
+              hasNextPage
+              endCursor
+            }
+          }
+        }
+      }`
+      );
+
+    await expect(requestFunc).rejects.toThrow(MissingCursorChange);
   });
 
   it(".paginate() throws if GraphQl returns error.", async (): Promise<void> => {

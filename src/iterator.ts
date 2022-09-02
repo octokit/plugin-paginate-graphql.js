@@ -5,7 +5,7 @@ import {
   CursorFactory,
   CursorHandler,
 } from "./CursorHandler";
-import { hasNextPage } from "./PageInfo";
+import { anyHasAnotherPage } from "./PageInfo";
 
 type QueryBuilder = (cursor: CursorFactory) => string;
 
@@ -32,13 +32,14 @@ const createIteator = (octokit: Octokit) => {
           );
 
           const pageInfos = extractPageInfos(response);
+          const nextCursors = cursorHandler.extractNextCursors(pageInfos);
 
           parameters = {
             ...parameters,
-            ...cursorHandler.extractNextCursors(pageInfos),
+            ...nextCursors,
           };
 
-          if (!hasNextPage(pageInfos)) {
+          if (!anyHasAnotherPage(pageInfos)) {
             nextPageExists = false;
           }
 
