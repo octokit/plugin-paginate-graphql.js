@@ -1,16 +1,11 @@
+import fetchMock from "fetch-mock";
 import { PageInfo } from "../src/PageInfo";
 import { expectQuery } from "./testHelpers/expectQuery";
-import { MockOctokit } from "./testHelpers/MockOctokit";
-
-type TestResponseType = {
-  repository: {
-    issues: {
-      nodes?: Array<{ title: string }>;
-      edges?: Array<{ node: { title: string } }>;
-      pageInfo: PageInfo;
-    };
-  };
-};
+import { MockOctokit, PatchedOctokit } from "./testHelpers/MockOctokit";
+import {
+  createResponsePages,
+  TestResponseType,
+} from "./testHelpers/MockResponse";
 
 describe("pagination", () => {
   it(".paginate() returns the response data if only one page exists.", async (): Promise<void> => {
@@ -337,43 +332,73 @@ describe("pagination", () => {
       { hasNextPage: false, endCursor: "endCursor3" },
     ]);
   });
-});
 
-type Direction = "forward" | "backward";
-type DataKeys = "nodes" | "edges";
-function createResponsePages({
-  amount,
-  direction = "forward",
-  dataProps = ["nodes"],
-}: {
-  amount: number;
-  direction?: Direction;
-  dataProps?: DataKeys[];
-}): TestResponseType[] {
-  return Array.from(Array(amount)).map((value, index) => {
-    const pageInfo: PageInfo =
-      direction === "forward"
-        ? {
-            hasNextPage: amount > index + 1,
-            endCursor: `endCursor${index + 1}`,
-          }
-        : {
-            hasPreviousPage: amount > index + 1,
-            startCursor: `startCursor${index + 1}`,
-          };
-
-    const data = { title: `Issue ${index + 1}` };
-    const issues: any = {};
-    if (dataProps.includes("nodes")) issues["nodes"] = [data];
-    if (dataProps.includes("edges")) issues["edges"] = [{ node: data }];
-
-    return {
-      repository: {
-        issues: {
-          ...issues,
-          pageInfo,
+  it(".paginate() throws if GraphQl returns error.", async (): Promise<void> => {
+    const mockResponse = {
+      data: null,
+      errors: [
+        {
+          locations: [
+            {
+              column: 5,
+              line: 3,
+            },
+          ],
+          message: "Field 'bioHtml' doesn't exist on type 'User'",
         },
-      },
+      ],
     };
+    const mock = fetchMock
+      .sandbox()
+      .post("https://api.github.com/graphql", mockResponse);
+
+    const octokit = new PatchedOctokit({ request: { fetch: mock } });
+    const query = `{
+        viewer {
+          bioHtml
+        }
+      }`;
+
+    await octokit
+      .paginateGraphql<TestResponseType>((cursor) => query)
+      .then(() => {
+        throw new Error("Should not resolve");
+      })
+      .catch((error) => {
+        expect(error.message).toEqual(
+          "Request failed due to following response errors:\n" +
+            " - Field 'bioHtml' doesn't exist on type 'User'"
+        );
+        expect(error.errors).toStrictEqual(mockResponse.errors);
+        expect(error.request.query).toEqual(query);
+      });
   });
-}
+
+  it(".paginate() passes 500 errors on.", async (): Promise<void> => {
+    const mock = fetchMock.sandbox().post("https://api.github.com/graphql", {
+      status: 500,
+    });
+
+    const octokit = new PatchedOctokit({ request: { fetch: mock } });
+    const func = async () =>
+      await octokit.paginateGraphql<TestResponseType>(
+        (cursor) => `{
+        repository(owner: "octokit", name: "rest.js") {
+          issues(first: 10, after: ${cursor.create()}) {
+            edges {
+              node {
+                title
+              }
+            }
+            pageInfo {
+              hasNextPage
+              endCursor
+            }
+          }
+        }
+      }`
+      );
+
+    await expect(func).rejects.toThrow();
+  });
+});

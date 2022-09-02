@@ -33,4 +33,4 @@ const MockOctokit = ({ responses = [{}] }: { responses?: any[] } = {}) => {
   };
 };
 
-export { MockOctokit };
+export { MockOctokit, PatchedOctokit };
