@@ -1,12 +1,23 @@
-import { PageInfo } from "./PageInfo";
+import { CursorValue, PageInfoContext } from "./PageInfo";
 
-const message =
-  "At least one cursors did not change it's value after a page transition, which would result in an endless pagination loop. As cursor values are matched by creation order, please make sure that you place the created cursors in the exact same order in your query as you created them.";
+const generateMessage = (
+  path: string[],
+  cursorName: string,
+  cursorValue: CursorValue
+): string =>
+  `The cursor at "${path.join(
+    ","
+  )}" defined by the variable "${cursorName}" did not change its value "${cursorValue}" after a page transition. As cursor values are matched by creation order, please make sure that you place the created cursors in the exact same order in your query as you created them to avoid endless pagination loops.`;
+
 class MissingCursorChange extends Error {
   override name = "MissingCursorChangeError";
 
-  constructor(readonly pageInfo: PageInfo, readonly cursorName: string) {
-    super(message);
+  constructor(
+    readonly pageInfo: PageInfoContext,
+    readonly cursorName: string,
+    readonly cursorValue: CursorValue
+  ) {
+    super(generateMessage(pageInfo.pathInQuery, cursorName, cursorValue));
 
     if (Error.captureStackTrace) {
       Error.captureStackTrace(this, this.constructor);

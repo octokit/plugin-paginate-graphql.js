@@ -10,7 +10,9 @@ const visit = (object: any, visitor: Visitor, path: string[] = []) => {
     const currentPath = [...path, key];
     const currentValue = object[key];
 
-    visitor.onObject(currentValue, currentPath);
+    if (currentValue !== null) {
+      visitor.onObject(currentValue, currentPath);
+    }
 
     if (isObject(currentValue)) {
       visit(currentValue, visitor, currentPath);

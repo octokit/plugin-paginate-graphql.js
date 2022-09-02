@@ -2,15 +2,16 @@ import { MissingCursorChange } from "./errors";
 import {
   getCursorFrom,
   hasAnotherPage,
-  anyHasAnotherPage,
   PageInfo,
+  PageInfoContext,
+  CursorValue,
 } from "./PageInfo";
 
 type CursorFactory = {
   create: (cursorName?: string) => string;
 };
 
-type CursorValues = Record<string, string>;
+type CursorValues = Record<string, CursorValue>;
 
 const asCursorVariable = (cursorName: string) => `$${cursorName}`;
 
@@ -24,20 +25,28 @@ const createCursorHandler = () => {
   };
 
   let currentCursorValues: CursorValues = {};
+  const cursorDidNotChange = (pageInfo: PageInfo, cursorName: string) =>
+    hasAnotherPage(pageInfo) &&
+    getCursorFrom(pageInfo) === currentCursorValues[cursorName];
 
   return {
     cursorFactory,
-    extractNextCursors: (pageInfos: PageInfo[]): CursorValues => {
+    extractNextCursors: (pageInfos: PageInfoContext[]): CursorValues => {
       currentCursorValues = cursors.reduce(
         (acc: CursorValues, cursorName, index) => {
-          const pageInfo = pageInfos[index];
-          if (
-            hasAnotherPage(pageInfo) &&
-            getCursorFrom(pageInfo) === currentCursorValues[cursorName]
-          ) {
-            throw new MissingCursorChange(pageInfo, cursorName);
+          const pageInfoContext = pageInfos[index];
+          const { pageInfo } = pageInfoContext;
+          const cursorValue = getCursorFrom(pageInfo);
+
+          if (cursorDidNotChange(pageInfo, cursorName)) {
+            throw new MissingCursorChange(
+              pageInfoContext,
+              cursorName,
+              cursorValue
+            );
           }
-          acc[cursorName] = getCursorFrom(pageInfos[index]);
+
+          acc[cursorName] = cursorValue;
           return acc;
         },
         {}

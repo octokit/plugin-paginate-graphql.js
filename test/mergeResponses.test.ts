@@ -30,6 +30,28 @@ describe(".mergeResponses()", (): void => {
     });
   });
 
+  it(".mergeResponse() merges empty results.", async (): Promise<void> => {
+    const response1 = {
+      repository: {
+        issues: {
+          nodes: [],
+          pageInfo: { hasNextPage: false, endCursor: null },
+        },
+      },
+    };
+
+    const result = mergeResponses({}, response1);
+
+    expect(result).toEqual({
+      repository: {
+        issues: {
+          nodes: [],
+          pageInfo: { hasNextPage: false, endCursor: null },
+        },
+      },
+    });
+  });
+
   it('merges the "edges" array of a response if it exists.', async (): Promise<void> => {
     const response1 = {
       repository: {

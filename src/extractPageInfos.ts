@@ -1,13 +1,16 @@
-import { PageInfo } from "./PageInfo";
+import { PageInfoContext } from "./PageInfo";
 import { visit } from "./objectHelpers";
 
-const extractPageInfos = (responseData: any): PageInfo[] => {
-  let newPageInfos: PageInfo[] = [];
+const extractPageInfos = (responseData: any): PageInfoContext[] => {
+  let newPageInfos: PageInfoContext[] = [];
 
   visit(responseData, {
-    onObject: (object) => {
+    onObject: (object, path) => {
       if (Boolean(object.pageInfo)) {
-        newPageInfos.push(object.pageInfo);
+        newPageInfos.push({
+          pageInfo: object.pageInfo,
+          pathInQuery: path,
+        });
       }
     },
   });

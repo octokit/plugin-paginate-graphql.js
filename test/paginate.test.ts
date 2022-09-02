@@ -334,7 +334,7 @@ describe("pagination", () => {
     ]);
   });
 
-  it("paginate() throws error if cursors do not change between calls.", async (): Promise<void> => {
+  it("paginate() throws error with path and variable name if cursors do not change between calls.", async (): Promise<void> => {
     const [responsePage1, responsePage2] = createResponsePages({ amount: 2 });
     responsePage2.repository.issues.pageInfo = {
       ...responsePage1.repository.issues.pageInfo,
@@ -343,11 +343,11 @@ describe("pagination", () => {
       responses: [responsePage1, responsePage2],
     });
 
-    const requestFunc = async () =>
+    try {
       await octokit.paginateGraphql(
         (cursor) => `{
         repository(owner: "octokit", name: "rest.js") {
-          issues(first: 10, after: ${cursor.create()}) {
+          issues(first: 10, after: ${cursor.create("issuesCursor")}) {
             nodes {
               title
             }
@@ -359,8 +359,13 @@ describe("pagination", () => {
         }
       }`
       );
-
-    await expect(requestFunc).rejects.toThrow(MissingCursorChange);
+      throw new Error("Should not succeed!");
+    } catch (err: any) {
+      expect(err).toBeInstanceOf(MissingCursorChange);
+      expect(err.message).toMatch(
+        /The cursor at "repository.issues" defined by the variable "issuesCursor" did not change its value "endCursor1".*/
+      );
+    }
   });
 
   it(".paginate() throws if GraphQl returns error.", async (): Promise<void> => {

@@ -1,5 +1,6 @@
 import { Octokit } from "@octokit/core";
 import { paginateGraphql } from "../src";
+import { MissingCursorChange } from "../src/errors";
 
 const PatchedOctokit = Octokit.plugin(paginateGraphql);
 
@@ -63,5 +64,49 @@ describe("paginate-graphql-js E2E Test", () => {
 
     expect(result).toBeDefined();
     expect(result.repository.repositoryTopics.nodes).toHaveLength(3);
+  });
+
+  it("prevents endless pagination when mixing up cursors.", async (): Promise<void> => {
+    const myOctokit = new PatchedOctokit({
+      auth: token,
+    });
+
+    try {
+      await myOctokit.paginateGraphql((cursor) => {
+        const topicsCursor = cursor.create("topics");
+        const issuesCursor = cursor.create("issues");
+
+        return `{   
+          repository(owner: "octokit", name: "plugin-paginate-graphql.js") {
+             issues(first: 1, after: ${topicsCursor}) {
+                nodes {
+                  title
+                }
+                pageInfo {
+                  hasNextPage
+                  endCursor
+                }
+              }
+              repositoryTopics(first: 1, after: ${issuesCursor}) {
+                nodes {
+                  topic {
+                    name
+                  }
+                }
+                pageInfo {
+                  hasNextPage
+                  endCursor
+                }
+              }
+            }
+          }`;
+      });
+    } catch (err: any) {
+      console.error(err);
+      expect(err).toBeInstanceOf(MissingCursorChange);
+      expect(err.message).toMatch(
+        /The cursor at "repository.issues" defined by the variable "issuesCursor" did not change its value.*/
+      );
+    }
   });
 });
