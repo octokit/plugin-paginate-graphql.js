@@ -296,9 +296,8 @@ describe("pagination", () => {
   it(".paginate.iterator() lets users iterate over pages step by step.", async (): Promise<void> => {
     const responses = createResponsePages({ amount: 3 });
     const { octokit } = MockOctokit({ responses });
-    const pageIterator =
-      await octokit.paginateGraphql.iterator<TestResponseType>(
-        (cursor) => `{
+    const pageIterator = octokit.paginateGraphql.iterator<TestResponseType>(
+      (cursor) => `{
         repository(owner: "octokit", name: "rest.js") {
           issues(first: 10, after: ${cursor.create()}) {
             nodes {
@@ -311,7 +310,7 @@ describe("pagination", () => {
           }
         }
       }`
-      );
+    );
 
     const allIssues: any[] = [];
     const allPageInfos: PageInfo[] = [];
