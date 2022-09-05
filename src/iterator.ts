@@ -20,6 +20,7 @@ const createIteator = (octokit: Octokit) => {
 
     let nextPageExists = true;
     let parameters = { ...initialParameters };
+    let firstPage = true;
 
     return {
       [Symbol.asyncIterator]: () => ({
@@ -33,6 +34,16 @@ const createIteator = (octokit: Octokit) => {
 
           const pageInfos = extractPageInfos(response);
           const nextCursors = cursorHandler.extractNextCursors(pageInfos);
+
+          if (firstPage) {
+            const cursorAmount = cursorHandler.getCursors().length;
+            if (cursorAmount > pageInfos.length) {
+              console.warn(
+                `Only found ${pageInfos.length} pageInfo object for ${cursorAmount} provided cursors. Please add the pageInfo to every paginated resource. If you tried nested pagination, please be advise that this is not supported. For more infos, see <url_to_explanation>.`
+              );
+            }
+            firstPage = false;
+          }
 
           parameters = {
             ...parameters,

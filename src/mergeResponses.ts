@@ -9,7 +9,6 @@ const mergeResponses = (response1: any, response2: any) => {
     onObject: (object, path) => {
       if (object.hasOwnProperty("pageInfo")) {
         if (object.hasOwnProperty("nodes")) {
-          // Overwrite both the nodes and the pageInfo properties
           set(response2, [...path, "nodes"], (values: any) => {
             return [...object["nodes"], ...values];
           });

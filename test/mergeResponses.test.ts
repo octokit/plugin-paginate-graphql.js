@@ -1,4 +1,5 @@
 import { mergeResponses } from "../src/mergeResponses";
+
 describe(".mergeResponses()", (): void => {
   it('merges the "nodes" array of a response if it exists.', async (): Promise<void> => {
     const response1 = {
@@ -30,7 +31,7 @@ describe(".mergeResponses()", (): void => {
     });
   });
 
-  it(".mergeResponse() merges empty results.", async (): Promise<void> => {
+  it("merges empty results.", async (): Promise<void> => {
     const response1 = {
       repository: {
         issues: {

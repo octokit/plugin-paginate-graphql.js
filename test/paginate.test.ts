@@ -368,6 +368,72 @@ describe("pagination", () => {
     }
   });
 
+  it("paginate() warns on nested pagination or missing pageInfo due to cursorCount being larger than the pageInfoCount.", async (): Promise<void> => {
+    const responses = [
+      {
+        repository: {
+          issues: {
+            nodes: [
+              {
+                title: "Issue 1",
+                comments: {
+                  nodes: [{ body: "CommentBodyu" }],
+                  pageInfo: {
+                    hasNextPage: true,
+                    endCurosr: "nestedCursor1",
+                  },
+                },
+              },
+            ],
+            pageInfo: {
+              hasNextPage: false,
+              endCursor: "endCursor1",
+            },
+          },
+        },
+      },
+    ];
+
+    const { octokit } = MockOctokit({
+      responses,
+    });
+
+    jest.spyOn(console, "warn").mockImplementationOnce(() => {});
+
+    await octokit.paginateGraphql((cursor) => {
+      const issuesCursor = cursor.create("issuesCursor");
+      const commentsCursor = cursor.create("issuesCursor");
+      return `{
+        repository(owner: "octokit", name: "rest.js") {
+          issues(first: 10, after: ${issuesCursor}) {
+            nodes {
+              title,
+              comments(first: 10, after: ${commentsCursor}) {
+                nodes: {
+                  body
+                }
+                pageInfo {
+                  hasNextPage
+                  endCursor
+                }
+              }
+            }
+            pageInfo {
+              hasNextPage
+              endCursor
+            }
+          }
+        }
+      }`;
+    });
+
+    expect(console.warn).toHaveBeenCalledWith(
+      "Only found 1 pageInfo object for 2 provided cursors. Please add the pageInfo to every paginated resource. If you tried nested pagination, please be advise that this is not supported. For more infos, see <url_to_explanation>."
+    );
+
+    jest.restoreAllMocks();
+  });
+
   it(".paginate() throws if GraphQl returns error.", async (): Promise<void> => {
     const mockResponse = {
       data: null,

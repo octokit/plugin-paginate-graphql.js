@@ -35,6 +35,13 @@ const createCursorHandler = () => {
       currentCursorValues = cursors.reduce(
         (acc: CursorValues, cursorName, index) => {
           const pageInfoContext = pageInfos[index];
+
+          // Can be undefined in case user tried nested pagination or forgot to add
+          // pageInfo Object. We warn about this in the iterator class.
+          if (!pageInfoContext) {
+            return acc;
+          }
+
           const { pageInfo } = pageInfoContext;
           const cursorValue = getCursorFrom(pageInfo);
 
