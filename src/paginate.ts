@@ -4,7 +4,7 @@ import { createIteator, QueryBuilder } from "./iterator";
 
 const paginate = (octokit: Octokit) => {
   const iterator = createIteator(octokit);
-  return async <ResponseType = any>(
+  return async <ResponseType extends object = any>(
     queryBuilder: QueryBuilder,
     initialParameters: Record<string, any> = {}
   ): Promise<ResponseType> => {
@@ -13,7 +13,7 @@ const paginate = (octokit: Octokit) => {
       queryBuilder,
       initialParameters
     )) {
-      mergedResponse = mergeResponses(mergedResponse, response);
+      mergedResponse = mergeResponses<ResponseType>(mergedResponse, response);
     }
     return mergedResponse;
   };

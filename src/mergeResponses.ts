@@ -1,6 +1,9 @@
 import { get, set, visit } from "./objectHelpers";
 
-const mergeResponses = (response1: any, response2: any) => {
+const mergeResponses = <ResponseType extends object = any>(
+  response1: ResponseType,
+  response2: ResponseType
+): ResponseType => {
   if (Object.keys(response1).length === 0) {
     return response2;
   }

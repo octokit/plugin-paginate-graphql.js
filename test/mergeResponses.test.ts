@@ -41,7 +41,7 @@ describe(".mergeResponses()", (): void => {
       },
     };
 
-    const result = mergeResponses({}, response1);
+    const result = mergeResponses({} as any, response1);
 
     expect(result).toEqual({
       repository: {
