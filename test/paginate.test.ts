@@ -108,7 +108,7 @@ describe("pagination", () => {
     });
   });
 
-  it(".paginate() always passes the next cursor to the next query.", async (): Promise<void> => {
+  it(".paginate() passes the endCursor to the next query.", async (): Promise<void> => {
     const responses = createResponsePages({ amount: 3 });
 
     const { octokit, getCallCount, getPassedVariablesForCall } = MockOctokit({
@@ -137,7 +137,7 @@ describe("pagination", () => {
     expect(getPassedVariablesForCall(3)).toEqual({ cursorName: "endCursor2" });
   });
 
-  it(".paginate() allows passing of initial arguments with the help of named cursors.", async (): Promise<void> => {
+  it(".paginate() allows passing initial variables with the help of named cursors.", async (): Promise<void> => {
     const responses = createResponsePages({ amount: 2 });
 
     const { octokit, getCalledQuery, getPassedVariablesForCall } = MockOctokit({
@@ -191,8 +191,8 @@ describe("pagination", () => {
     });
   });
 
-  it(".paginate() simply executes query if no cursors given.", async (): Promise<void> => {
-    const { octokit, getCalledQuery, getPassedVariablesForCall } = MockOctokit({
+  it(".paginate() simply executes the query once if no cursors given.", async (): Promise<void> => {
+    const { octokit, getCalledQuery } = MockOctokit({
       responses: [{}],
     });
 
