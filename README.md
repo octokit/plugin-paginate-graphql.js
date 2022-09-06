@@ -47,7 +47,7 @@ const {
 const MyOctokit = Octokit.plugin(paginateGraphql);
 const octokit = new MyOctokit({ auth: "secret123" });
 
-const issues = await octokit.paginateGraphql(
+const response = await octokit.paginateGraphql(
   (cursor) => `{
   repository(owner: "octokit", name: "rest.js") {
     issues(first: 10, after: ${cursor.create()}) {
@@ -60,31 +60,27 @@ const issues = await octokit.paginateGraphql(
       }
     }
   }
-}`
-);
+}`);
+
+console.log(`Found ${response.issues.nodes.length} issues!`);
 ```
 
 ## `octokit.paginateGraphql()`
 
 The `paginateGraphql` plugin adds a new `octokit.paginateGraphql()` method which accepts a function that
+- gets passed a cursor-object to create the cursors (or cursor-variables) which are required for pagination
 - needs to return a valid graphql query as string
-- gets passed a cursor-object to create the cursors required for pagination
 
+The query itself will get passed over to the `octokit.graphql()`-function. The response will be analyzed for the `pageInfo`-object, so you have to make sure to include it in the query. If `hasNextPage` is `true`, it will automatically use the `endCursor` to execute the next query until `hasNextPage` is `false`.
 
+While iterating, it ongoingly merges all `nodes` and/or `edges` of all responses and returns a combined response in the end.
 
-### Providing additional variables and initial parameters
-
-- on default, the query statement is created
-- if you want to provide initial parameters through additinioal varialbeles
-
-
-### Parallel pagination
-
-### Unsupported: Nested pagination
-
-
+> **Note**
+> Please note that nested pagination is **not** supported by this plugin. More details below.
 
 ## `octokit.paginateGraphql.iterator()`
+
+If your target runtime environments supports async iterators (such as most modern browsers and Node 10+), you can iterate through each response:
 
 ```js
 const pageIterator = octokit.paginateGraphql.iterator<TestResponseType>(
@@ -108,6 +104,117 @@ for await (const response of pageIterator) {
   console.log("%d issues found", issues.length);
 }
 ```
+
+### Variables
+
+Per default, the plugin creates a `query paginate(cursor1: String!)` statement containing cursor variable definitions for all cursors you provided.
+
+To pass your own variables, you can create the query-statement yourself and then pass them as second parameter just like you do with the [octokit/graphql.js](https://github.com/octokit/graphql.js/#variables) plugin.
+
+
+```js
+await octokit.paginateGraphql<TestResponseType>(
+  (cursor) => {
+    const cursorVariable = cursor.create();
+    return `
+      query paginate(${cursorVariable}: String, $organization: String!) {
+        repository(owner: $organization, name: "rest.js") {
+          issues(first: 10, after: ${cursorVariable}) {
+            nodes {
+              title
+            }
+            pageInfo {
+              hasNextPage
+              endCursor
+            }
+          }
+        }
+      }
+    `;
+  },
+  { 
+    organization: "octokit" 
+  }
+);
+```
+
+> **Note**
+> You will have to make sure to insert the created cursor-variable both in the query statement as well as in the paginated resource.
+
+### Initial cursor values
+
+To pass initial cursor values, you can create a named cursor by passing a string to the cursor-creator like `cursor.create("namedCursor")` and then use the name as property-key in the variable-object:
+
+```js
+await octokit.paginateGraphql<TestResponseType>(
+  (cursor) => {
+    const cursorVariable = cursor.create("namedCursor");
+    return `
+      query paginate(${cursorVariable}: String, $organization: String!) {
+        repository(owner: $organization, name: "rest.js") {
+          issues(first: 10, after: ${cursorVariable}) {
+            nodes {
+              title
+            }
+            pageInfo {
+              hasNextPage
+              endCursor
+            }
+          }
+        }
+      }
+    `;
+  },
+  { 
+    namedCursor: "initialValue", 
+    organization: "octokit" 
+  }
+);
+```
+
+### Pagination Direction
+
+You can control the pagination direction by the structure of the provided `pageInfo`.
+
+For a forward pagination, use:
+
+```gql
+pageInfo {
+  hasNextPage
+  endCursor
+}
+```
+
+For a backwards pagination, use:
+
+```gql
+pageInfo {
+  hasNextPage
+  endCursor
+}
+```
+
+If you provide all 4 properties in a `pageInfo`, the plugin will default to forward pagination.
+
+### Parallel pagination
+
+While not really recommended, you can do a parallel pagination by creating several cursors for different resources:
+
+```js
+
+```
+
+This will paginate as long as either resource has another page.
+
+### Unsupported: Nested pagination
+
+The following is **not** supported by this plugin:
+
+```js
+
+```
+
+
 
 ## Contributing
 
