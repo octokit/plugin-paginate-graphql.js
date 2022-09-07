@@ -1,15 +1,16 @@
 type CursorValue = string | null;
-type ForwardSearchPageInfo = {
+
+type PageInfoForward = {
   hasNextPage: boolean;
   endCursor: CursorValue;
 };
 
-type BackwardSearchPageInfo = {
+type PageInfoBackward = {
   hasPreviousPage: boolean;
   startCursor: CursorValue;
 };
 
-type PageInfo = ForwardSearchPageInfo | BackwardSearchPageInfo;
+type PageInfo = PageInfoForward | PageInfoBackward;
 
 type PageInfoContext = {
   pageInfo: PageInfo;
@@ -18,7 +19,7 @@ type PageInfoContext = {
 
 const isForwardSearch = (
   givenPageInfo: PageInfo
-): givenPageInfo is ForwardSearchPageInfo => {
+): givenPageInfo is PageInfoForward => {
   return givenPageInfo.hasOwnProperty("hasNextPage");
 };
 
@@ -35,4 +36,10 @@ const anyHasAnotherPage = (pageInfos: PageInfoContext[]) =>
 
 export { getCursorFrom, hasAnotherPage, anyHasAnotherPage };
 
-export type { PageInfo, PageInfoContext, CursorValue };
+export type {
+  PageInfo,
+  PageInfoForward,
+  PageInfoBackward,
+  PageInfoContext,
+  CursorValue,
+};
