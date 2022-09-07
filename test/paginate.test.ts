@@ -429,7 +429,7 @@ describe("pagination", () => {
               {
                 title: "Issue 1",
                 comments: {
-                  nodes: [{ body: "CommentBodyu" }],
+                  nodes: [{ body: "CommentBody" }],
                   pageInfo: {
                     hasNextPage: true,
                     endCurosr: "nestedCursor1",
