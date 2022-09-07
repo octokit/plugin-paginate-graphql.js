@@ -32,11 +32,18 @@ const get = (object: any, path: string[]) => {
   return path.reduce((current, nextProperty) => current[nextProperty], object);
 };
 
-const set = (object: any, path: string[], mutator: (value: unknown) => any) => {
+type Mutator = any | ((value: unknown) => any);
+
+const set = (object: any, path: string[], mutator: Mutator) => {
   const lastProperty = path.at(-1);
   const parentPath = [...path].slice(0, -1);
   const parent = get(object, parentPath);
-  parent[lastProperty!] = mutator(parent[lastProperty!]);
+
+  if (typeof mutator === "function") {
+    parent[lastProperty!] = mutator(parent[lastProperty!]);
+  } else {
+    parent[lastProperty!] = mutator;
+  }
 };
 
 export { visit, get, set };

@@ -1,33 +1,34 @@
-import { get, set, visit } from "./objectHelpers";
+import { set, visit } from "./objectHelpers";
 
 const mergeResponses = <ResponseType extends object = any>(
   response1: ResponseType,
   response2: ResponseType
 ): ResponseType => {
   if (Object.keys(response1).length === 0) {
-    return response2;
+    return Object.assign(response1, response2);
   }
 
-  visit(response1, {
+  visit(response2, {
     onObject: (object, path) => {
       if (object.hasOwnProperty("pageInfo")) {
         if (object.hasOwnProperty("nodes")) {
-          set(response2, [...path, "nodes"], (values: any) => {
-            return [...object["nodes"], ...values];
+          set(response1, [...path, "nodes"], (values: any) => {
+            return [...values, ...object["nodes"]];
           });
         }
 
         if (object.hasOwnProperty("edges")) {
-          set(response2, [...path, "edges"], (values: any) => {
-            return [...object["edges"], ...values];
+          set(response1, [...path, "edges"], (values: any) => {
+            return [...values, ...object["edges"]];
           });
         }
-        object.pageInfo = get(response2, [...path, "pageInfo"]);
+
+        set(response1, [...path, "pageInfo"], object.pageInfo);
       }
     },
   });
 
-  return response2;
+  return response1;
 };
 
 export { mergeResponses };
