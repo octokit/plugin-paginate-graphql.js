@@ -292,6 +292,59 @@ describe("pagination", () => {
       },
     });
   });
+  it(".paginate() allows to paginate two resources in parallel and will only merge new pages.", async (): Promise<void> => {
+    const [response1, response2]: any[] = createResponsePages({ amount: 2 });
+
+    response1.repository.repositoryTopics = {
+      nodes: [{ topic: { name: `Topic 1` } }],
+      pageInfo: { hasNextPage: false, endCursor: `endCursor1` },
+    };
+    response2.repository.repositoryTopics = {
+      nodes: [],
+      pageInfo: { hasNextPage: false, endCursor: null },
+    };
+
+    const { octokit, getPassedVariablesForCall } = MockOctokit({
+      responses: [response1, response2],
+    });
+
+    const actualResponse = await octokit.paginateGraphql((cursor) => {
+      const topicsCursor = cursor.create("topics");
+      const issuesCursor = cursor.create("issues");
+
+      return `{   
+          repository(owner: "octokit", name: "plugin-paginate-graphql.js") {
+             issues(first: 1, after: ${topicsCursor}) {
+                nodes {
+                  title
+                }
+                pageInfo {
+                  hasNextPage
+                  endCursor
+                }
+              }
+              repositoryTopics(first: 1, after: ${issuesCursor}) {
+                nodes {
+                  topic {
+                    name
+                  }
+                }
+                pageInfo {
+                  hasNextPage
+                  endCursor
+                }
+              }
+            }
+          }`;
+    });
+
+    expect(getPassedVariablesForCall(2)).toEqual({
+      issues: "endCursor1",
+      topics: "endCursor1",
+    });
+    expect(actualResponse.repository.issues.nodes).toHaveLength(2);
+    expect(actualResponse.repository.repositoryTopics.nodes).toHaveLength(1);
+  });
 
   it(".paginate.iterator() lets users iterate over pages step by step.", async (): Promise<void> => {
     const responses = createResponsePages({ amount: 3 });
