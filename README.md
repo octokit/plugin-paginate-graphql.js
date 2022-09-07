@@ -45,7 +45,7 @@ const { paginateGraphql } = require("@octokit/plugin-paginate-graphql");
 const MyOctokit = Octokit.plugin(paginateGraphql);
 const octokit = new MyOctokit({ auth: "secret123" });
 
-const response = await octokit.paginateGraphql(
+const { repository } = await octokit.paginateGraphql(
   (cursor) => `{
   repository(owner: "octokit", name: "rest.js") {
     issues(first: 10, after: ${cursor.create()}) {
@@ -61,7 +61,7 @@ const response = await octokit.paginateGraphql(
 }`
 );
 
-console.log(`Found ${response.issues.nodes.length} issues!`);
+console.log(`Found ${repository.issues.nodes.length} issues!`);
 ```
 
 ## `octokit.paginateGraphql()`
@@ -83,10 +83,8 @@ While iterating, it ongoingly merges all `nodes` and/or `edges` of all responses
 If your target runtime environments supports async iterators (such as most modern browsers and Node 10+), you can iterate through each response:
 
 ```js
-const pageIterator =
-  octokit.paginateGraphql.iterator <
-  TestResponseType >
-  ((cursor) => `{
+const pageIterator = octokit.paginateGraphql.iterator(
+  (cursor) => `{
     repository(owner: "octokit", name: "rest.js") {
       issues(first: 10, after: ${cursor.create()}) {
         nodes {
@@ -98,7 +96,8 @@ const pageIterator =
         }
       }
     }
-  }`);
+  }`
+);
 
 for await (const response of pageIterator) {
   const issues = response.repository.issues;
@@ -113,9 +112,8 @@ Per default, the plugin creates a query-statement (like `query paginate(cursor1:
 To pass your own variables, you can create the query-statement yourself and pass the variables as a second parameter to the `paginateGraphql` or `iterator`-function, just like you do with the [octokit/graphql.js](https://github.com/octokit/graphql.js/#variables) plugin.
 
 ```js
-(await octokit.paginateGraphql) <
-  TestResponseType >
-  ((cursor) => {
+await octokit.paginateGraphql(
+  (cursor) => {
     const cursorVariable = cursor.create();
     return `
       query paginate(${cursorVariable}: String, $organization: String!) {
@@ -135,7 +133,8 @@ To pass your own variables, you can create the query-statement yourself and pass
   },
   {
     organization: "octokit",
-  });
+  }
+);
 ```
 
 > **Note**
@@ -146,9 +145,8 @@ To pass your own variables, you can create the query-statement yourself and pass
 To pass initial cursor values, you can create a named cursor by passing a string to the cursor-creator like `cursor.create("namedCursor")` and then use the name as property-key in the variable-object:
 
 ```js
-(await octokit.paginateGraphql) <
-  TestResponseType >
-  ((cursor) => {
+await octokit.paginateGraphql(
+  (cursor) => {
     const cursorVariable = cursor.create("namedCursor");
     return `
       query paginate(${cursorVariable}: String, $organization: String!) {
@@ -169,7 +167,8 @@ To pass initial cursor values, you can create a named cursor by passing a string
   {
     namedCursor: "initialValue",
     organization: "octokit",
-  });
+  }
+);
 ```
 
 ### Pagination Direction
