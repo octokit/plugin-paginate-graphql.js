@@ -11,7 +11,7 @@
     "lint": "prettier --check '{src,test}/**/*' README.md package.json",
     "lint:fix": "prettier --write '{src,test}/**/*' README.md package.json",
     "pretest": "npm run -s lint",
-    "test": "jest --watch",
+    "test": "jest --coverage",
     "test:e2e": "jest --testRegex test/*.e2e.ts"
   },
   "repository": {
@@ -52,6 +52,9 @@
   },
   "jest": {
     "preset": "ts-jest",
+    "coveragePathIgnorePatterns": [
+      "./test/testHelpers"
+    ],
     "coverageThreshold": {
       "global": {
         "statements": 100,
