@@ -1,12 +1,12 @@
 import { Octokit } from "@octokit/core";
 import { createIteator } from "./iterator";
-import { paginate } from "./paginate";
+import { createPaginate } from "./paginate";
 
 export { PageInfoForward, PageInfoBackward } from "./PageInfo";
 
 export function paginateGraphql(octokit: Octokit) {
   return {
-    paginateGraphql: Object.assign(paginate(octokit), {
+    paginateGraphql: Object.assign(createPaginate(octokit), {
       iterator: createIteator(octokit),
     }),
   };

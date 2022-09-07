@@ -2,7 +2,7 @@ import { Octokit } from "@octokit/core";
 import { mergeResponses } from "./mergeResponses";
 import { createIteator, QueryBuilder } from "./iterator";
 
-const paginate = (octokit: Octokit) => {
+const createPaginate = (octokit: Octokit) => {
   const iterator = createIteator(octokit);
   return async <ResponseType extends object = any>(
     queryBuilder: QueryBuilder,
@@ -19,4 +19,4 @@ const paginate = (octokit: Octokit) => {
   };
 };
 
-export { paginate };
+export { createPaginate };
