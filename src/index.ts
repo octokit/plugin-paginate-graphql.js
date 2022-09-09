@@ -1,5 +1,5 @@
 import { Octokit } from "@octokit/core";
-import { createIteator } from "./iterator";
+import { createIterator } from "./iterator";
 import { createPaginate } from "./paginate";
 
 export { PageInfoForward, PageInfoBackward } from "./page-info";
@@ -9,7 +9,7 @@ export function paginateGraphql(octokit: Octokit) {
   return {
     graphql: Object.assign(octokit.graphql, {
       paginate: Object.assign(createPaginate(octokit), {
-        iterator: createIteator(octokit),
+        iterator: createIterator(octokit),
       }),
     }),
   };

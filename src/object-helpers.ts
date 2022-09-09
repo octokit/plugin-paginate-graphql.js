@@ -1,23 +1,45 @@
+import { MissingPageInfo } from "./errors";
+
 const isObject = (value: any) =>
   Object.prototype.toString.call(value) === "[object Object]";
 
-type Visitor = {
-  onObject: (object: any, path: string[]) => void;
-};
+function findPaginatedResourcePath(responseData: any): string[] {
+  const paginatedResourcePath = deepFindPathToProperty(
+    responseData,
+    "pageInfo"
+  );
+  if (paginatedResourcePath.length === 0) {
+    throw new MissingPageInfo(responseData);
+  }
+  return paginatedResourcePath;
+}
 
-const visit = (object: any, visitor: Visitor, path: string[] = []) => {
+const deepFindPathToProperty = (
+  object: any,
+  searchProp: string,
+  path: string[] = []
+): string[] => {
   for (const key of Object.keys(object)) {
     const currentPath = [...path, key];
     const currentValue = object[key];
 
-    if (currentValue !== null) {
-      visitor.onObject(currentValue, currentPath);
+    if (currentValue.hasOwnProperty(searchProp)) {
+      return currentPath;
     }
 
     if (isObject(currentValue)) {
-      visit(currentValue, visitor, currentPath);
+      const result = deepFindPathToProperty(
+        currentValue,
+        searchProp,
+        currentPath
+      );
+      if (result.length > 0) {
+        return result;
+      }
     }
   }
+
+  return [];
 };
 
 /**
@@ -46,6 +68,4 @@ const set = (object: any, path: string[], mutator: Mutator) => {
   }
 };
 
-export { visit, get, set };
-
-export type { Visitor };
+export { findPaginatedResourcePath, get, set };

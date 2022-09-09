@@ -1,21 +1,13 @@
 import { PageInfoContext } from "./page-info";
-import { visit } from "./object-helpers";
+import { findPaginatedResourcePath, get } from "./object-helpers";
 
-const extractPageInfos = (responseData: any): PageInfoContext[] => {
-  let newPageInfos: PageInfoContext[] = [];
+const extractPageInfos = (responseData: any): PageInfoContext => {
+  const pageInfoPath = findPaginatedResourcePath(responseData);
 
-  visit(responseData, {
-    onObject: (object, path) => {
-      if (Boolean(object.pageInfo)) {
-        newPageInfos.push({
-          pageInfo: object.pageInfo,
-          pathInQuery: path,
-        });
-      }
-    },
-  });
-
-  return newPageInfos;
+  return {
+    pathInQuery: pageInfoPath,
+    pageInfo: get(responseData, [...pageInfoPath, "pageInfo"]),
+  };
 };
 
 export { extractPageInfos };

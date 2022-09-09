@@ -1,26 +1,15 @@
 import { extractPageInfos } from "./extract-page-info";
 import { Octokit } from "@octokit/core";
-import {
-  createCursorHandler,
-  CursorFactory,
-  CursorHandler,
-} from "./cursor-handler";
-import { anyHasAnotherPage } from "./page-info";
+import { getCursorFrom, hasAnotherPage } from "./page-info";
+import { MissingCursorChange } from "./errors";
 
-type QueryBuilder = (cursor: CursorFactory) => string;
-
-const createIteator = (octokit: Octokit) => {
+const createIterator = (octokit: Octokit) => {
   return <ResponseType = any>(
-    queryBuilder: QueryBuilder,
+    query: string,
     initialParameters: Record<string, any> = {}
   ) => {
-    const cursorHandler = createCursorHandler();
-    const providedQuery = queryBuilder(cursorHandler.cursorFactory);
-    const query = ensureQueryHeader(providedQuery, cursorHandler);
-
     let nextPageExists = true;
     let parameters = { ...initialParameters };
-    let firstPage = true;
 
     return {
       [Symbol.asyncIterator]: () => ({
@@ -32,27 +21,18 @@ const createIteator = (octokit: Octokit) => {
             parameters
           );
 
-          const pageInfos = extractPageInfos(response);
-          const nextCursors = cursorHandler.extractNextCursors(pageInfos);
+          const pageInfoContext = extractPageInfos(response);
+          const nextCursorValue = getCursorFrom(pageInfoContext.pageInfo);
+          nextPageExists = hasAnotherPage(pageInfoContext.pageInfo);
 
-          if (firstPage) {
-            const cursorAmount = cursorHandler.getCursors().length;
-            if (cursorAmount > pageInfos.length) {
-              console.warn(
-                `Only found ${pageInfos.length} pageInfo object for ${cursorAmount} provided cursors. Please add the pageInfo to every paginated resource. If you tried nested pagination, please be advise that this is not supported. For more infos, see <url_to_explanation>.`
-              );
-            }
-            firstPage = false;
+          if (nextPageExists && nextCursorValue === parameters.cursor) {
+            throw new MissingCursorChange(pageInfoContext, nextCursorValue);
           }
 
           parameters = {
             ...parameters,
-            ...nextCursors,
+            cursor: nextCursorValue,
           };
-
-          if (!anyHasAnotherPage(pageInfos)) {
-            nextPageExists = false;
-          }
 
           return { done: false, value: response };
         },
@@ -61,17 +41,4 @@ const createIteator = (octokit: Octokit) => {
   };
 };
 
-function ensureQueryHeader(query: string, cursorHandler: CursorHandler) {
-  if (
-    query.trim().startsWith("query") ||
-    cursorHandler.getCursors().length === 0
-  ) {
-    return query;
-  }
-
-  return `query paginate(${cursorHandler.generateQueryStatement()}) ${query}`;
-}
-
-export { createIteator };
-
-export type { QueryBuilder };
+export { createIterator };

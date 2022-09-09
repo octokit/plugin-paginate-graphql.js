@@ -46,37 +46,39 @@ const MyOctokit = Octokit.plugin(paginateGraphql);
 const octokit = new MyOctokit({ auth: "secret123" });
 
 const { repository } = await octokit.graphql.paginate(
-  (cursor) => `{
-  repository(owner: "octokit", name: "rest.js") {
-    issues(first: 10, after: ${cursor.create()}) {
-      nodes {
-        title
-      }
-      pageInfo {
-        hasNextPage
-        endCursor
+  `query paginate($cursor: String) {
+    repository(owner: "octokit", name: "rest.js") {
+      issues(first: 10, after: $cursor) {
+        nodes {
+          title
+        }
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
       }
     }
-  }
-}`
+  }`
 );
 
 console.log(`Found ${repository.issues.nodes.length} issues!`);
 ```
 
+There are two convetions this plugin relies on:
+
+1. The name of the cursor variable must be `$cursor`
+2. You must include a valid `pageInfo` object in the paginated resource (see [Pagination Direction](#pagination-direction) for more info on what is considered valid)
+
 ## `octokit.graphql.paginate()`
 
-The `paginateGraphql` plugin adds a new `octokit.graphql.paginate()` method which accepts a query-builder function that
+The `paginateGraphql` plugin adds a new `octokit.graphql.paginate()` method which accepts a query with a single `$cursor` variable that is used to paginate.
 
-- gets passed a cursor-object to create the cursors (or cursor-variables) which are required for pagination
-- needs to return a valid graphql query as string
-
-The query returned from that function will get passed over to the `octokit.graphql()`-function. The response will be scanned for a `pageInfo`-object, so you have to make sure to include it in the query. If `hasNextPage` is `true`, it will automatically use the `endCursor` to execute the next query until `hasNextPage` is `false`.
+The query gets passed over to the `octokit.graphql()`-function. The response is then scanned for the required `pageInfo`-object. If `hasNextPage` is `true`, it will automatically use the `endCursor` to execute the next query until `hasNextPage` is `false`.
 
 While iterating, it ongoingly merges all `nodes` and/or `edges` of all responses and returns a combined response in the end.
 
 > **Warning**
-> Please note that nested pagination is **not** supported by this plugin. You can find more details in [the chapter below](#unsupported-nested-pagination).
+> Please note that this plugin only supports pagination of a single resource - so you can **not** execute queries with parallel or nested pagination. You can find more details in [the chapter below](#unsupported-nested-pagination).
 
 ## `octokit.graphql.paginate.iterator()`
 
@@ -84,9 +86,9 @@ If your target runtime environments supports async iterators (such as most moder
 
 ```js
 const pageIterator = octokit.graphql.paginate.iterator(
-  (cursor) => `{
+  `query paginate($cursor: String) {
     repository(owner: "octokit", name: "rest.js") {
-      issues(first: 10, after: ${cursor.create()}) {
+      issues(first: 10, after: $cursor) {
         nodes {
           title
         }
@@ -107,18 +109,14 @@ for await (const response of pageIterator) {
 
 ### Variables
 
-Per default, the plugin creates a query-statement (like `query paginate(cursor1: String!)`) containing the cursor variable(s) you provided.
-
-To pass your own variables, you can create the query-statement yourself and pass the variables as a second parameter to the `paginateGraphql` or `iterator`-function, just like you do with the [octokit/graphql.js](https://github.com/octokit/graphql.js/#variables) plugin.
+Just like with [octokit/graphql.js](https://github.com/octokit/graphql.js/#variables), you can pass your own variables as a second parameter to the `paginate` or `iterator` function.
 
 ```js
 await octokit.graphql.paginate(
-  (cursor) => {
-    const cursorVariable = cursor.create();
-    return `
-      query paginate(${cursorVariable}: String, $organization: String!) {
+  `
+      query paginate($cursor: String, $organization: String!) {
         repository(owner: $organization, name: "rest.js") {
-          issues(first: 10, after: ${cursorVariable}) {
+          issues(first: 10, after: $cursor) {
             nodes {
               title
             }
@@ -129,29 +127,21 @@ await octokit.graphql.paginate(
           }
         }
       }
-    `;
-  },
+    `,
   {
     organization: "octokit",
   }
 );
 ```
 
-> **Note**
-> You will have to make sure to insert the created cursor-variable both in the query statement as well as in the paginated resource.
-
-### Initial cursor values
-
-To pass initial cursor values, you can create a named cursor by passing a string to the cursor-creator like `cursor.create("namedCursor")` and then use the name as property-key in the variable-object:
+You can also use this to pass a initial cursor value:
 
 ```js
 await octokit.graphql.paginate(
-  (cursor) => {
-    const cursorVariable = cursor.create("namedCursor");
-    return `
-      query paginate(${cursorVariable}: String, $organization: String!) {
+  `
+      query paginate($cursor: String, $organization: String!) {
         repository(owner: $organization, name: "rest.js") {
-          issues(first: 10, after: ${cursorVariable}) {
+          issues(first: 10, after: $cursor) {
             nodes {
               title
             }
@@ -162,18 +152,17 @@ await octokit.graphql.paginate(
           }
         }
       }
-    `;
-  },
+    `,
   {
-    namedCursor: "initialValue",
     organization: "octokit",
+    cursor: "initialValue",
   }
 );
 ```
 
 ### Pagination Direction
 
-You can control the pagination direction by the structure of the provided `pageInfo`.
+You can control the pagination direction by the properties deinfed in the `pageInfo` resource.
 
 For a forward pagination, use:
 
@@ -194,48 +183,6 @@ pageInfo {
 ```
 
 If you provide all 4 properties in a `pageInfo`, the plugin will default to forward pagination.
-
-### Parallel pagination
-
-You can do a parallel pagination by creating several cursors for different resources:
-
-```js
-const { repository } = await octokit.graphql.paginate((cursor) => {
-  const topicsCursor = cursor.create("topics");
-  const issuesCursor = cursor.create("issues");
-
-  return `{
-      repository(owner: "octokit", name: "plugin-paginate-graphql.js") {
-         issues(first: 1, after: ${topicsCursor}) {
-            nodes {
-              title
-            }
-            pageInfo {
-              hasNextPage
-              endCursor
-            }
-          }
-          repositoryTopics(first: 1, after: ${issuesCursor}) {
-            nodes {
-              topic {
-                name
-              }
-            }
-            pageInfo {
-              hasNextPage
-              endCursor
-            }
-          }
-        }
-      }`;
-});
-
-console.log(
-  `Found ${repository.issues.nodes.length} issues and ${repository.repositoryTopuics.nodes.length} repositoryTopics.`
-);
-```
-
-You will have to make sure to create the cursors in exactly the same order as the corresponding resources appear in the query, as matching is done based on order.
 
 ### Unsupported: Nested pagination
 

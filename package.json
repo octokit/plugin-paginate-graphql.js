@@ -12,6 +12,7 @@
     "lint:fix": "prettier --write '{src,test}/**/*' README.md package.json",
     "pretest": "npm run -s lint",
     "test": "jest --coverage",
+    "test:watch": "jest --watch",
     "test:e2e": "jest --testRegex test/*.e2e.ts"
   },
   "repository": "github:octokit/plugin-paginate-graphql.js",
@@ -37,7 +38,6 @@
     "@types/jest": "^28.0.0",
     "@types/node": "^16.0.0",
     "fetch-mock": "^9.0.0",
-    "graphql": "16.6.0",
     "jest": "^28.0.0",
     "npm-run-all": "^4.1.5",
     "prettier": "2.7.1",

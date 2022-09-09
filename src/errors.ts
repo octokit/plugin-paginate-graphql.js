@@ -1,23 +1,19 @@
 import { CursorValue, PageInfoContext } from "./page-info";
 
-const generateMessage = (
-  path: string[],
-  cursorName: string,
-  cursorValue: CursorValue
-): string =>
+// Todo: Add link to explanation
+const generateMessage = (path: string[], cursorValue: CursorValue): string =>
   `The cursor at "${path.join(
     ","
-  )}" defined by the variable "${cursorName}" did not change its value "${cursorValue}" after a page transition. As cursor values are matched by creation order, please make sure that you place the created cursors in the exact same order in your query as you created them to avoid endless pagination loops.`;
+  )}" did not change its value "${cursorValue}" after a page transition. Please make sure your that your query is set up correctly - for more info see <tdb.>`;
 
 class MissingCursorChange extends Error {
   override name = "MissingCursorChangeError";
 
   constructor(
     readonly pageInfo: PageInfoContext,
-    readonly cursorName: string,
     readonly cursorValue: CursorValue
   ) {
-    super(generateMessage(pageInfo.pathInQuery, cursorName, cursorValue));
+    super(generateMessage(pageInfo.pathInQuery, cursorValue));
 
     if (Error.captureStackTrace) {
       Error.captureStackTrace(this, this.constructor);
@@ -25,4 +21,22 @@ class MissingCursorChange extends Error {
   }
 }
 
-export { MissingCursorChange };
+class MissingPageInfo extends Error {
+  override name = "MissingPageInfo";
+
+  constructor(readonly response: any) {
+    super(
+      `No pageInfo property found in response. Please make sure to specify the pageInfo in your query. Response-Data: ${JSON.stringify(
+        response,
+        null,
+        2
+      )}`
+    );
+
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, this.constructor);
+    }
+  }
+}
+
+export { MissingCursorChange, MissingPageInfo };

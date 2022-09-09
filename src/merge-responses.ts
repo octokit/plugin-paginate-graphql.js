@@ -1,4 +1,4 @@
-import { set, visit } from "./object-helpers";
+import { findPaginatedResourcePath, get, set } from "./object-helpers";
 
 const mergeResponses = <ResponseType extends object = any>(
   response1: ResponseType,
@@ -8,25 +8,26 @@ const mergeResponses = <ResponseType extends object = any>(
     return Object.assign(response1, response2);
   }
 
-  visit(response2, {
-    onObject: (object, path) => {
-      if (object.hasOwnProperty("pageInfo")) {
-        if (object.hasOwnProperty("nodes")) {
-          set(response1, [...path, "nodes"], (values: any) => {
-            return [...values, ...object["nodes"]];
-          });
-        }
+  const path = findPaginatedResourcePath(response1);
 
-        if (object.hasOwnProperty("edges")) {
-          set(response1, [...path, "edges"], (values: any) => {
-            return [...values, ...object["edges"]];
-          });
-        }
+  const nodesPath = [...path, "nodes"];
+  const newNodes = get(response2, nodesPath);
+  if (newNodes) {
+    set(response1, nodesPath, (values: any) => {
+      return [...values, ...newNodes];
+    });
+  }
 
-        set(response1, [...path, "pageInfo"], object.pageInfo);
-      }
-    },
-  });
+  const edgesPath = [...path, "edges"];
+  const newEdges = get(response2, edgesPath);
+  if (newEdges) {
+    set(response1, edgesPath, (values: any) => {
+      return [...values, ...newEdges];
+    });
+  }
+
+  const pageInfoPath = [...path, "pageInfo"];
+  set(response1, pageInfoPath, get(response2, pageInfoPath));
 
   return response1;
 };
