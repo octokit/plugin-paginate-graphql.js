@@ -5,9 +5,12 @@ import { createPaginate } from "./paginate";
 export { PageInfoForward, PageInfoBackward } from "./PageInfo";
 
 export function paginateGraphql(octokit: Octokit) {
+  octokit.graphql;
   return {
-    paginateGraphql: Object.assign(createPaginate(octokit), {
-      iterator: createIteator(octokit),
+    graphql: Object.assign(octokit.graphql, {
+      paginate: Object.assign(createPaginate(octokit), {
+        iterator: createIteator(octokit),
+      }),
     }),
   };
 }

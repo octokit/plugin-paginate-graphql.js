@@ -45,7 +45,7 @@ const { paginateGraphql } = require("@octokit/plugin-paginate-graphql");
 const MyOctokit = Octokit.plugin(paginateGraphql);
 const octokit = new MyOctokit({ auth: "secret123" });
 
-const { repository } = await octokit.paginateGraphql(
+const { repository } = await octokit.graphql.paginate(
   (cursor) => `{
   repository(owner: "octokit", name: "rest.js") {
     issues(first: 10, after: ${cursor.create()}) {
@@ -64,9 +64,9 @@ const { repository } = await octokit.paginateGraphql(
 console.log(`Found ${repository.issues.nodes.length} issues!`);
 ```
 
-## `octokit.paginateGraphql()`
+## `octokit.graphql.paginate()`
 
-The `paginateGraphql` plugin adds a new `octokit.paginateGraphql()` method which accepts a query-builder function that
+The `paginateGraphql` plugin adds a new `octokit.graphql.paginate()` method which accepts a query-builder function that
 
 - gets passed a cursor-object to create the cursors (or cursor-variables) which are required for pagination
 - needs to return a valid graphql query as string
@@ -78,12 +78,12 @@ While iterating, it ongoingly merges all `nodes` and/or `edges` of all responses
 > **Warning**
 > Please note that nested pagination is **not** supported by this plugin. You can find more details in [the chapter below](#unsupported-nested-pagination).
 
-## `octokit.paginateGraphql.iterator()`
+## `octokit.graphql.paginate.iterator()`
 
 If your target runtime environments supports async iterators (such as most modern browsers and Node 10+), you can iterate through each response:
 
 ```js
-const pageIterator = octokit.paginateGraphql.iterator(
+const pageIterator = octokit.graphql.paginate.iterator(
   (cursor) => `{
     repository(owner: "octokit", name: "rest.js") {
       issues(first: 10, after: ${cursor.create()}) {
@@ -112,7 +112,7 @@ Per default, the plugin creates a query-statement (like `query paginate(cursor1:
 To pass your own variables, you can create the query-statement yourself and pass the variables as a second parameter to the `paginateGraphql` or `iterator`-function, just like you do with the [octokit/graphql.js](https://github.com/octokit/graphql.js/#variables) plugin.
 
 ```js
-await octokit.paginateGraphql(
+await octokit.graphql.paginate(
   (cursor) => {
     const cursorVariable = cursor.create();
     return `
@@ -145,7 +145,7 @@ await octokit.paginateGraphql(
 To pass initial cursor values, you can create a named cursor by passing a string to the cursor-creator like `cursor.create("namedCursor")` and then use the name as property-key in the variable-object:
 
 ```js
-await octokit.paginateGraphql(
+await octokit.graphql.paginate(
   (cursor) => {
     const cursorVariable = cursor.create("namedCursor");
     return `
@@ -188,8 +188,8 @@ For a backwards pagination, use:
 
 ```gql
 pageInfo {
-  hasNextPage
-  endCursor
+  hasPreviousPage
+  startCursor
 }
 ```
 
@@ -200,7 +200,7 @@ If you provide all 4 properties in a `pageInfo`, the plugin will default to forw
 You can do a parallel pagination by creating several cursors for different resources:
 
 ```js
-const { repository } = await octokit.paginateGraphql((cursor) => {
+const { repository } = await octokit.graphql.paginate((cursor) => {
   const topicsCursor = cursor.create("topics");
   const issuesCursor = cursor.create("issues");
 
@@ -242,7 +242,7 @@ You will have to make sure to create the cursors in exactly the same order as th
 Nested pagination with GraphlQL is complicated, so the following **is not supported**:
 
 ```js
-await octokit.paginateGraphql((cursor) => {
+await octokit.graphql.paginate((cursor) => {
   const issuesCursor = cursor.create("issuesCursor");
   const commentsCursor = cursor.create("issuesCursor");
   return `{
@@ -270,14 +270,14 @@ await octokit.paginateGraphql((cursor) => {
 });
 ```
 
-There is a great video from GitHub Universe 2019 [Advanced patterns for GitHub's GraphQL API](https://www.youtube.com/watch?v=i5pIszu9MeM&t=719s) by [@ReaLoretta](https://github.com/ReaLoretta) that goes into depth why this is so hard to achieve and patterns around it.
+There is a great video from GitHub Universe 2019 [Advanced patterns for GitHub's GraphQL API](https://www.youtube.com/watch?v=i5pIszu9MeM&t=719s) by [@ReaLoretta](https://github.com/ReaLoretta) that goes into depth why this is so hard to achieve and patterns and ways around it.
 
 ### TypeScript Support
 
 You can type the response of the `paginateGraphql()` and `iterator()` functions like this:
 
 ```ts
-await octokit.paginateGraphql<RepositoryIssueResponseType>((cursor) => {
+await octokit.graphql.paginate<RepositoryIssueResponseType>((cursor) => {
   return `{
       repository(owner: "octokit", name: "rest.js") {
         issues(first: 10, after: ${cursor.create()}) {
@@ -313,7 +313,7 @@ type IssueResponseType = {
 };
 
 // Response will be of type IssueResponseType
-const response = await octokit.paginateGraphql<IssueResponseType>((cursor) => {
+const response = await octokit.graphql.paginate<IssueResponseType>((cursor) => {
   return `{
       repository(owner: "octokit", name: "rest.js") {
         issues(first: 10, after: ${cursor.create()}) {

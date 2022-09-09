@@ -17,7 +17,7 @@ describe("paginate-graphql-js E2E Test", () => {
       auth: token,
     });
 
-    const result = await myOctokit.paginateGraphql(
+    const result = await myOctokit.graphql.paginate(
       (cursor) => `{
         repository(owner: "octokit", name: "plugin-paginate-graphql.js") {
           repositoryTopics(first: 3) {
@@ -44,7 +44,7 @@ describe("paginate-graphql-js E2E Test", () => {
       auth: token,
     });
 
-    const result = await myOctokit.paginateGraphql(
+    const result = await myOctokit.graphql.paginate(
       (cursor) => `{
         repository(owner: "octokit", name: "plugin-paginate-graphql.js") {
           repositoryTopics(first: 1, after: ${cursor.create()}) {
@@ -72,7 +72,7 @@ describe("paginate-graphql-js E2E Test", () => {
     });
 
     try {
-      await myOctokit.paginateGraphql((cursor) => {
+      await myOctokit.graphql.paginate((cursor) => {
         const topicsCursor = cursor.create("topics");
         const issuesCursor = cursor.create("issues");
 

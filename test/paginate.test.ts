@@ -16,7 +16,7 @@ describe("pagination", () => {
       responses: [givenResponse],
     });
 
-    const actualResponse = await octokit.paginateGraphql(
+    const actualResponse = await octokit.graphql.paginate(
       (cursor) => `{
       repository(owner: "octokit", name: "rest.js") {
         issues(first: 10, after: ${cursor.create()}) {
@@ -39,7 +39,7 @@ describe("pagination", () => {
       responses: createResponsePages({ amount: 1 }),
     });
 
-    await octokit.paginateGraphql<TestResponseType>((cursor) => {
+    await octokit.graphql.paginate<TestResponseType>((cursor) => {
       return `{
           repository(owner: "octokit", name: "rest.js") {
             issues(first: 10, after: ${cursor.create()}) {
@@ -77,7 +77,7 @@ describe("pagination", () => {
   it(".paginate() merges the result of all pages and returns the last pageInfo Object.", async (): Promise<void> => {
     const responses = createResponsePages({ amount: 3 });
     const { octokit, getCallCount } = MockOctokit({ responses });
-    const actualResponse = await octokit.paginateGraphql<TestResponseType>(
+    const actualResponse = await octokit.graphql.paginate<TestResponseType>(
       (cursor) => `{
         repository(owner: "octokit", name: "rest.js") {
           issues(first: 10, after: ${cursor.create()}) {
@@ -115,7 +115,7 @@ describe("pagination", () => {
       responses,
     });
 
-    await octokit.paginateGraphql<TestResponseType>((cursor) => {
+    await octokit.graphql.paginate<TestResponseType>((cursor) => {
       return `{
           repository(owner: "octokit", name: "rest.js") {
             issues(first: 10, after: ${cursor.create("cursorName")}) {
@@ -144,7 +144,7 @@ describe("pagination", () => {
       responses,
     });
 
-    await octokit.paginateGraphql<TestResponseType>(
+    await octokit.graphql.paginate<TestResponseType>(
       (cursor) => {
         const cursorVariable = cursor.create("namedCursor");
         return `
@@ -210,7 +210,7 @@ describe("pagination", () => {
         }
       }`;
 
-    await octokit.paginateGraphql((cursor) => simpleQuery);
+    await octokit.graphql.paginate((cursor) => simpleQuery);
 
     expectQuery(getCalledQuery(1)).toEqual(simpleQuery);
   });
@@ -223,7 +223,7 @@ describe("pagination", () => {
     const { octokit, getCallCount, getPassedVariablesForCall } = MockOctokit({
       responses,
     });
-    const actualResponse = await octokit.paginateGraphql<TestResponseType>(
+    const actualResponse = await octokit.graphql.paginate<TestResponseType>(
       (cursor) => `{
         repository(owner: "octokit", name: "rest.js") {
           issues(first: 10, after: ${cursor.create("cursorName")}) {
@@ -261,7 +261,7 @@ describe("pagination", () => {
     const { octokit, getCallCount, getPassedVariablesForCall } = MockOctokit({
       responses,
     });
-    const actualResponse = await octokit.paginateGraphql<TestResponseType>(
+    const actualResponse = await octokit.graphql.paginate<TestResponseType>(
       (cursor) => `{
         repository(owner: "octokit", name: "rest.js") {
           issues(first: 10, after: ${cursor.create()}) {
@@ -308,7 +308,7 @@ describe("pagination", () => {
       responses: [response1, response2],
     });
 
-    const actualResponse = await octokit.paginateGraphql((cursor) => {
+    const actualResponse = await octokit.graphql.paginate((cursor) => {
       const topicsCursor = cursor.create("topics");
       const issuesCursor = cursor.create("issues");
 
@@ -349,7 +349,7 @@ describe("pagination", () => {
   it(".paginate.iterator() lets users iterate over pages step by step.", async (): Promise<void> => {
     const responses = createResponsePages({ amount: 3 });
     const { octokit } = MockOctokit({ responses });
-    const pageIterator = octokit.paginateGraphql.iterator<TestResponseType>(
+    const pageIterator = octokit.graphql.paginate.iterator<TestResponseType>(
       (cursor) => `{
         repository(owner: "octokit", name: "rest.js") {
           issues(first: 10, after: ${cursor.create()}) {
@@ -396,7 +396,7 @@ describe("pagination", () => {
     });
 
     try {
-      await octokit.paginateGraphql(
+      await octokit.graphql.paginate(
         (cursor) => `{
         repository(owner: "octokit", name: "rest.js") {
           issues(first: 10, after: ${cursor.create("issuesCursor")}) {
@@ -452,7 +452,7 @@ describe("pagination", () => {
 
     jest.spyOn(console, "warn").mockImplementationOnce(() => {});
 
-    await octokit.paginateGraphql((cursor) => {
+    await octokit.graphql.paginate((cursor) => {
       const issuesCursor = cursor.create("issuesCursor");
       const commentsCursor = cursor.create("issuesCursor");
       return `{
@@ -512,8 +512,8 @@ describe("pagination", () => {
         }
       }`;
 
-    await octokit
-      .paginateGraphql<TestResponseType>((cursor) => query)
+    await octokit.graphql
+      .paginate<TestResponseType>((cursor) => query)
       .then(() => {
         throw new Error("Should not resolve");
       })
@@ -534,7 +534,7 @@ describe("pagination", () => {
 
     const octokit = new PatchedOctokit({ request: { fetch: mock } });
     const func = async () =>
-      await octokit.paginateGraphql<TestResponseType>(
+      await octokit.graphql.paginate<TestResponseType>(
         (cursor) => `{
         repository(owner: "octokit", name: "rest.js") {
           issues(first: 10, after: ${cursor.create()}) {
