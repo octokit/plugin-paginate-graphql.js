@@ -297,7 +297,7 @@ await octokit.paginateGraphql<RepositoryIssueResponseType>((cursor) => {
 You can utilize the `PageInfoForward` and `PageInfoBackward`-Interfaces exported from this library to construct your response-types:
 
 ```ts
-import { PageInfoForward } from "plugin-paginate-graphql";
+import { PageInfoForward } from "@octokit/plugin-paginate-graphql";
 
 type Issues = {
   title: string;

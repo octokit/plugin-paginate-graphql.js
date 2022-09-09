@@ -14,10 +14,7 @@
     "test": "jest --coverage",
     "test:e2e": "jest --testRegex test/*.e2e.ts"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/octokit/plugin-paginate-graphql.js.git"
-  },
+  "repository": "github:octokit/plugin-paginate-graphql.js",",
   "keywords": [
     "github",
     "api",
@@ -25,9 +22,6 @@
     "toolkit"
   ],
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/octokit/plugin-paginate-graphql.js/issues"
-  },
   "peerDependencies": {
     "@octokit/core": ">=4"
   },
