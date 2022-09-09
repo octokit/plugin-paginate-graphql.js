@@ -1,5 +1,5 @@
 import { Octokit } from "@octokit/core";
-import { mergeResponses } from "./mergeResponses";
+import { mergeResponses } from "./merge-responses";
 import { createIteator, QueryBuilder } from "./iterator";
 
 const createPaginate = (octokit: Octokit) => {

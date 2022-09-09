@@ -1,11 +1,11 @@
-import { extractPageInfos } from "./extractPageInfos";
+import { extractPageInfos } from "./extract-page-info";
 import { Octokit } from "@octokit/core";
 import {
   createCursorHandler,
   CursorFactory,
   CursorHandler,
-} from "./CursorHandler";
-import { anyHasAnotherPage } from "./PageInfo";
+} from "./cursor-handler";
+import { anyHasAnotherPage } from "./page-info";
 
 type QueryBuilder = (cursor: CursorFactory) => string;
 

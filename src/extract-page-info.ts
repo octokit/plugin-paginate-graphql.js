@@ -1,5 +1,5 @@
-import { PageInfoContext } from "./PageInfo";
-import { visit } from "./objectHelpers";
+import { PageInfoContext } from "./page-info";
+import { visit } from "./object-helpers";
 
 const extractPageInfos = (responseData: any): PageInfoContext[] => {
   let newPageInfos: PageInfoContext[] = [];

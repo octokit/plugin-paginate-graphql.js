@@ -1,4 +1,4 @@
-import { PageInfo } from "../../src/PageInfo";
+import { PageInfo } from "../../src/page-info";
 
 type TestResponseType = {
   repository: {

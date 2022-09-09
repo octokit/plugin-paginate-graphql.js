@@ -5,7 +5,7 @@ import {
   PageInfo,
   PageInfoContext,
   CursorValue,
-} from "./PageInfo";
+} from "./page-info";
 
 type CursorFactory = {
   create: (cursorName?: string) => string;

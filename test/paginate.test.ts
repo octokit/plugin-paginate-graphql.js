@@ -1,12 +1,12 @@
 import fetchMock from "fetch-mock";
-import { PageInfo } from "../src/PageInfo";
-import { expectQuery } from "./testHelpers/expectQuery";
+import { PageInfo } from "../src/page-info";
+import { expectQuery } from "./testHelpers/expect-query";
 import { MissingCursorChange } from "../src/errors";
-import { MockOctokit, PatchedOctokit } from "./testHelpers/MockOctokit";
+import { MockOctokit, PatchedOctokit } from "./testHelpers/mock-octokit";
 import {
   createResponsePages,
   TestResponseType,
-} from "./testHelpers/MockResponse";
+} from "./testHelpers/mock-response";
 
 describe("pagination", () => {
   it(".paginate() returns the response data if only one page exists.", async (): Promise<void> => {

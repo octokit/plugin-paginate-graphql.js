@@ -1,4 +1,4 @@
-import { set, visit } from "./objectHelpers";
+import { set, visit } from "./object-helpers";
 
 const mergeResponses = <ResponseType extends object = any>(
   response1: ResponseType,

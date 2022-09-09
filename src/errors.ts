@@ -1,4 +1,4 @@
-import { CursorValue, PageInfoContext } from "./PageInfo";
+import { CursorValue, PageInfoContext } from "./page-info";
 
 const generateMessage = (
   path: string[],

@@ -1,5 +1,5 @@
-import { extractPageInfos } from "../src/extractPageInfos";
-import { PageInfoContext } from "../src/PageInfo";
+import { extractPageInfos } from "../src/extract-page-info";
+import { PageInfoContext } from "../src/page-info";
 
 describe("extractPageInfos()", (): void => {
   it("returns empty array if no pageInfos on object exist.", async (): Promise<void> => {

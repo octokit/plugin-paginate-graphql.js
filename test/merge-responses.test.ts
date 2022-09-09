@@ -1,4 +1,4 @@
-import { mergeResponses } from "../src/mergeResponses";
+import { mergeResponses } from "../src/merge-responses";
 
 describe(".mergeResponses()", (): void => {
   it('merges the "nodes" array of a response if it exists.', async (): Promise<void> => {

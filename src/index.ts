@@ -2,7 +2,7 @@ import { Octokit } from "@octokit/core";
 import { createIteator } from "./iterator";
 import { createPaginate } from "./paginate";
 
-export { PageInfoForward, PageInfoBackward } from "./PageInfo";
+export { PageInfoForward, PageInfoBackward } from "./page-info";
 
 export function paginateGraphql(octokit: Octokit) {
   octokit.graphql;
