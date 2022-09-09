@@ -10,7 +10,7 @@ const MockOctokit = ({ responses = [{}] }: { responses?: any[] } = {}) => {
   let callCount = 0;
   const mock = fetchMock.sandbox().post(
     "https://api.github.com/graphql",
-    (url, options) => {
+    (_, options) => {
       calledQueries.push(JSON.parse(options.body!.toString()).query);
       passedVariables.push(JSON.parse(options.body!.toString()).variables);
       callCount = callCount + 1;

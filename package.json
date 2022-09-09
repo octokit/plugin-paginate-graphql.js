@@ -14,7 +14,7 @@
     "test": "jest --coverage",
     "test:e2e": "jest --testRegex test/*.e2e.ts"
   },
-  "repository": "github:octokit/plugin-paginate-graphql.js",",
+  "repository": "github:octokit/plugin-paginate-graphql.js",
   "keywords": [
     "github",
     "api",
@@ -28,6 +28,7 @@
   "devDependencies": {
     "@octokit/core": "^4.0.0",
     "@octokit/plugin-rest-endpoint-methods": "^6.0.0",
+    "@octokit/tsconfig": "1.0.2",
     "@pika/pack": "^0.3.7",
     "@pika/plugin-build-node": "^0.9.0",
     "@pika/plugin-build-web": "^0.9.0",

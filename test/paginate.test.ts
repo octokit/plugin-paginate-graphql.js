@@ -210,7 +210,7 @@ describe("pagination", () => {
         }
       }`;
 
-    await octokit.graphql.paginate((cursor) => simpleQuery);
+    await octokit.graphql.paginate(() => simpleQuery);
 
     expectQuery(getCalledQuery(1)).toEqual(simpleQuery);
   });
@@ -258,7 +258,7 @@ describe("pagination", () => {
       amount: 2,
       dataProps: ["edges"],
     });
-    const { octokit, getCallCount, getPassedVariablesForCall } = MockOctokit({
+    const { octokit, getCallCount } = MockOctokit({
       responses,
     });
     const actualResponse = await octokit.graphql.paginate<TestResponseType>(
@@ -513,7 +513,7 @@ describe("pagination", () => {
       }`;
 
     await octokit.graphql
-      .paginate<TestResponseType>((cursor) => query)
+      .paginate<TestResponseType>(() => query)
       .then(() => {
         throw new Error("Should not resolve");
       })

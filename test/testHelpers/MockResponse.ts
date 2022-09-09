@@ -21,7 +21,7 @@ function createResponsePages({
   direction?: Direction;
   dataProps?: DataKeys[];
 }): TestResponseType[] {
-  return Array.from(Array(amount)).map((value, index) => {
+  return Array.from(Array(amount)).map((_, index) => {
     const pageInfo: PageInfo =
       direction === "forward"
         ? {
