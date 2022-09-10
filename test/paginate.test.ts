@@ -396,7 +396,7 @@ describe("pagination", () => {
       });
   });
 
-  it.skip(".paginate() passes 500 errors on.", async (): Promise<void> => {
+  it(".paginate() passes 500 errors on.", async (): Promise<void> => {
     const mock = fetchMock.sandbox().post("https://api.github.com/graphql", {
       status: 500,
     });

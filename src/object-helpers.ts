@@ -57,7 +57,7 @@ const get = (object: any, path: string[]) => {
 type Mutator = any | ((value: unknown) => any);
 
 const set = (object: any, path: string[], mutator: Mutator) => {
-  const lastProperty = path.at(-1);
+  const lastProperty = path[path.length - 1];
   const parentPath = [...path].slice(0, -1);
   const parent = get(object, parentPath);
 
