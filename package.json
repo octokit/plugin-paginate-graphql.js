@@ -1,5 +1,5 @@
 {
-  "name": "plugin-paginate-graphql",
+  "name": "@octokit/plugin-paginate-graphql",
   "publishConfig": {
     "access": "public"
   },
