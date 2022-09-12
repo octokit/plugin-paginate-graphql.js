@@ -19,8 +19,7 @@ Load `@octokit/plugin-paginate-graphql` and [`@octokit/core`](https://github.com
 <script type="module">
   import { Octokit } from "https://cdn.skypack.dev/@octokit/core";
   import {
-    paginateRest,
-    composePaginateRest,
+    paginateGraphql,
   } from "https://cdn.skypack.dev/@octokit/plugin-paginate-graphql";
 </script>
 ```
