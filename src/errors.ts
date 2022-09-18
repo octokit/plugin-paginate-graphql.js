@@ -4,7 +4,7 @@ import { CursorValue, PageInfoContext } from "./page-info";
 const generateMessage = (path: string[], cursorValue: CursorValue): string =>
   `The cursor at "${path.join(
     ","
-  )}" did not change its value "${cursorValue}" after a page transition. Please make sure your that your query is set up correctly - for more info see <tdb.>`;
+  )}" did not change its value "${cursorValue}" after a page transition. Please make sure your that your query is set up correctly.`;
 
 class MissingCursorChange extends Error {
   override name = "MissingCursorChangeError";
