@@ -1,6 +1,5 @@
 import { Octokit } from "@octokit/core";
 import { paginateGraphql } from "../src";
-import { MissingCursorChange } from "../src/errors";
 
 const PatchedOctokit = Octokit.plugin(paginateGraphql);
 
@@ -35,5 +34,37 @@ describe("paginate-graphql-js E2E Test", () => {
     );
     expect(result).toBeDefined();
     expect(result.repository.repositoryTopics.nodes).toHaveLength(3);
+  });
+
+  it("works with iterated paginated query.", async () => {
+    const myOctokit = new PatchedOctokit({
+      auth: token,
+    });
+    const iterator = myOctokit.graphql.paginate.iterator(
+      `query paginate($cursor: String) {
+        repository(owner: "octokit", name: "plugin-paginate-graphql.js") {
+          repositoryTopics(first: 1, after: $cursor) {
+            nodes{
+              topic {
+                name
+              }
+            }
+            pageInfo {
+              hasNextPage
+              endCursor
+            }
+          }
+        }
+      }`
+    );
+
+    let iterations = 0;
+    for await (const result of iterator) {
+      expect(result).toBeDefined();
+      expect(result.repository.repositoryTopics.nodes).toHaveLength(1);
+      iterations += 1;
+    }
+
+    expect(iterations).toEqual(3);
   });
 });
