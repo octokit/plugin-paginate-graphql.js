@@ -29,7 +29,7 @@
   },
   "devDependencies": {
     "@octokit/core": "^4.0.0",
-    "@octokit/plugin-rest-endpoint-methods": "^6.0.0",
+    "@octokit/plugin-rest-endpoint-methods": "^7.0.0",
     "@octokit/tsconfig": "1.0.2",
     "@pika/pack": "^0.3.7",
     "@pika/plugin-build-node": "^0.9.0",
