@@ -1,4 +1,4 @@
-import { CursorValue, PageInfoContext } from "./page-info";
+import type { CursorValue, PageInfoContext } from "./page-info";
 
 // Todo: Add link to explanation
 const generateMessage = (path: string[], cursorValue: CursorValue): string =>

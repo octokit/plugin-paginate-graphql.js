@@ -30,7 +30,7 @@
   "devDependencies": {
     "@octokit/core": "^4.0.0",
     "@octokit/plugin-rest-endpoint-methods": "^7.0.0",
-    "@octokit/tsconfig": "^1.0.2",
+    "@octokit/tsconfig": "^2.0.0",
     "@types/fetch-mock": "^7.3.1",
     "@types/jest": "^29.0.0",
     "@types/node": "^18.0.0",
@@ -46,6 +46,14 @@
   },
   "jest": {
     "preset": "ts-jest",
+    "transform": {
+      "^.+\\.(ts|tsx)$": [
+        "ts-jest",
+        {
+          "tsconfig": "test/tsconfig.test.json"
+        }
+      ]
+    },
     "coveragePathIgnorePatterns": [
       "./test/testHelpers"
     ],

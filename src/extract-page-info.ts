@@ -1,4 +1,4 @@
-import { PageInfoContext } from "./page-info";
+import type { PageInfoContext } from "./page-info";
 import { findPaginatedResourcePath, get } from "./object-helpers";
 
 const extractPageInfos = (responseData: any): PageInfoContext => {
