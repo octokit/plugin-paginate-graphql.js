@@ -13,12 +13,12 @@
 Browsers
 </th><td width=100%>
 
-Load `@octokit/plugin-paginate-graphql` and [`@octokit/core`](https://github.com/octokit/core.js) (or core-compatible module) directly from [cdn.skypack.dev](https://cdn.skypack.dev)
+Load `@octokit/plugin-paginate-graphql` and [`@octokit/core`](https://github.com/octokit/core.js) (or core-compatible module) directly from [esm.sh](https://esm.sh)
 
 ```html
 <script type="module">
-  import { Octokit } from "https://cdn.skypack.dev/@octokit/core";
-  import { paginateGraphql } from "https://cdn.skypack.dev/@octokit/plugin-paginate-graphql";
+  import { Octokit } from "https://esm.sh/@octokit/core";
+  import { paginateGraphql } from "https://esm.sh/@octokit/plugin-paginate-graphql";
 </script>
 ```
 
