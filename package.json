@@ -29,7 +29,7 @@
   },
   "devDependencies": {
     "@octokit/core": "^4.0.0",
-    "@octokit/plugin-rest-endpoint-methods": "^7.0.0",
+    "@octokit/plugin-rest-endpoint-methods": "^8.0.0",
     "@octokit/tsconfig": "^2.0.0",
     "@types/fetch-mock": "^7.3.1",
     "@types/jest": "^29.0.0",
@@ -97,5 +97,8 @@
         }
       ]
     ]
+  },
+  "engines": {
+    "node": ">= 18"
   }
 }
