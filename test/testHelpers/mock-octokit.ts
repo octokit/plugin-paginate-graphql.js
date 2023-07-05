@@ -16,7 +16,7 @@ const MockOctokit = ({ responses = [{}] }: { responses?: any[] } = {}) => {
       callCount = callCount + 1;
       return { data: responses.shift() };
     },
-    { repeat: responses.length }
+    { repeat: responses.length },
   );
 
   const octokit = new PatchedOctokit({

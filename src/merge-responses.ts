@@ -2,7 +2,7 @@ import { findPaginatedResourcePath, get, set } from "./object-helpers";
 
 const mergeResponses = <ResponseType extends object = any>(
   response1: ResponseType,
-  response2: ResponseType
+  response2: ResponseType,
 ): ResponseType => {
   if (Object.keys(response1).length === 0) {
     return Object.assign(response1, response2);

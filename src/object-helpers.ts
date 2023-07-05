@@ -6,7 +6,7 @@ const isObject = (value: any) =>
 function findPaginatedResourcePath(responseData: any): string[] {
   const paginatedResourcePath = deepFindPathToProperty(
     responseData,
-    "pageInfo"
+    "pageInfo",
   );
   if (paginatedResourcePath.length === 0) {
     throw new MissingPageInfo(responseData);
@@ -17,7 +17,7 @@ function findPaginatedResourcePath(responseData: any): string[] {
 const deepFindPathToProperty = (
   object: any,
   searchProp: string,
-  path: string[] = []
+  path: string[] = [],
 ): string[] => {
   for (const key of Object.keys(object)) {
     const currentPath = [...path, key];
@@ -31,7 +31,7 @@ const deepFindPathToProperty = (
       const result = deepFindPathToProperty(
         currentValue,
         searchProp,
-        currentPath
+        currentPath,
       );
       if (result.length > 0) {
         return result;

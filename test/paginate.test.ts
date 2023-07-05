@@ -118,7 +118,7 @@ describe("pagination", () => {
         }
       }
     `,
-      { cursor: "initialValue", organization: "octokit" }
+      { cursor: "initialValue", organization: "octokit" },
     );
 
     expect(getPassedVariablesForCall(1)).toEqual({
@@ -225,7 +225,7 @@ describe("pagination", () => {
             }
           }
         }
-      }`
+      }`,
     );
 
     expect(getCallCount()).toBe(2);
@@ -258,7 +258,7 @@ describe("pagination", () => {
             }
           }
         }
-      }`
+      }`,
     );
 
     const allIssues: any[] = [];
@@ -305,13 +305,13 @@ describe("pagination", () => {
               }
             }
           }
-      }`
+      }`,
       );
       throw new Error("Should not succeed!");
     } catch (err: any) {
       expect(err).toBeInstanceOf(MissingCursorChange);
       expect(err.message).toMatch(
-        /The cursor at "repository.issues" did not change its value "endCursor1".*/
+        /The cursor at "repository.issues" did not change its value "endCursor1".*/,
       );
     }
   });
@@ -349,8 +349,8 @@ describe("pagination", () => {
         `No pageInfo property found in response. Please make sure to specify the pageInfo in your query. Response-Data: ${JSON.stringify(
           response,
           null,
-          2
-        )}`
+          2,
+        )}`,
       );
     }
   });
@@ -389,7 +389,7 @@ describe("pagination", () => {
       .catch((error) => {
         expect(error.message).toEqual(
           "Request failed due to following response errors:\n" +
-            " - Field 'bioHtml' doesn't exist on type 'User'"
+            " - Field 'bioHtml' doesn't exist on type 'User'",
         );
         expect(error.errors).toStrictEqual(mockResponse.errors);
         expect(error.request.query).toEqual(query);

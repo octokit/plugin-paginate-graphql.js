@@ -18,7 +18,7 @@ type PageInfoContext = {
 };
 
 const isForwardSearch = (
-  givenPageInfo: PageInfo
+  givenPageInfo: PageInfo,
 ): givenPageInfo is PageInfoForward => {
   return givenPageInfo.hasOwnProperty("hasNextPage");
 };
