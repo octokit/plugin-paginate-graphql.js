@@ -3,7 +3,7 @@ import type { CursorValue, PageInfoContext } from "./page-info";
 // Todo: Add link to explanation
 const generateMessage = (path: string[], cursorValue: CursorValue): string =>
   `The cursor at "${path.join(
-    ","
+    ",",
   )}" did not change its value "${cursorValue}" after a page transition. Please make sure your that your query is set up correctly.`;
 
 class MissingCursorChange extends Error {
@@ -11,7 +11,7 @@ class MissingCursorChange extends Error {
 
   constructor(
     readonly pageInfo: PageInfoContext,
-    readonly cursorValue: CursorValue
+    readonly cursorValue: CursorValue,
   ) {
     super(generateMessage(pageInfo.pathInQuery, cursorValue));
 
@@ -29,8 +29,8 @@ class MissingPageInfo extends Error {
       `No pageInfo property found in response. Please make sure to specify the pageInfo in your query. Response-Data: ${JSON.stringify(
         response,
         null,
-        2
-      )}`
+        2,
+      )}`,
     );
 
     if (Error.captureStackTrace) {

@@ -55,7 +55,7 @@ const { repository } = await octokit.graphql.paginate(
         }
       }
     }
-  }`
+  }`,
 );
 
 console.log(`Found ${repository.issues.nodes.length} issues!`);
@@ -95,7 +95,7 @@ const pageIterator = octokit.graphql.paginate.iterator(
         }
       }
     }
-  }`
+  }`,
 );
 
 for await (const response of pageIterator) {
@@ -127,7 +127,7 @@ await octokit.graphql.paginate(
     `,
   {
     organization: "octokit",
-  }
+  },
 );
 ```
 
@@ -153,7 +153,7 @@ await octokit.graphql.paginate(
   {
     organization: "octokit",
     cursor: "initialValue",
-  }
+  },
 );
 ```
 

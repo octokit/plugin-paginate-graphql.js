@@ -6,7 +6,7 @@ const PatchedOctokit = Octokit.plugin(paginateGraphql);
 const token = process.env.E2E_GITHUB_TOKEN;
 if (!token) {
   throw new Error(
-    "Executing the E2E Tests requires you to pass a GitHub Token as an environment variable named E2E_GITHUB_TOKEN"
+    "Executing the E2E Tests requires you to pass a GitHub Token as an environment variable named E2E_GITHUB_TOKEN",
   );
 }
 
@@ -30,7 +30,7 @@ describe("paginate-graphql-js E2E Test", () => {
             }
           }
         }
-      }`
+      }`,
     );
     expect(result).toBeDefined();
     expect(result.repository.repositoryTopics.nodes).toHaveLength(3);
@@ -55,7 +55,7 @@ describe("paginate-graphql-js E2E Test", () => {
             }
           }
         }
-      }`
+      }`,
     );
 
     let iterations = 0;

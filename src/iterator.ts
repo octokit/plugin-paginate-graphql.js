@@ -6,7 +6,7 @@ import { MissingCursorChange } from "./errors";
 const createIterator = (octokit: Octokit) => {
   return <ResponseType = any>(
     query: string,
-    initialParameters: Record<string, any> = {}
+    initialParameters: Record<string, any> = {},
   ) => {
     let nextPageExists = true;
     let parameters = { ...initialParameters };
@@ -18,7 +18,7 @@ const createIterator = (octokit: Octokit) => {
 
           const response = await octokit.graphql<ResponseType>(
             query,
-            parameters
+            parameters,
           );
 
           const pageInfoContext = extractPageInfos(response);
