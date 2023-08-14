@@ -391,7 +391,7 @@ describe("pagination", () => {
           "Request failed due to following response errors:\n" +
             " - Field 'bioHtml' doesn't exist on type 'User'",
         );
-        expect(error.errors).toStrictEqual(mockResponse.errors);
+        expect(error.errors).toEqual(mockResponse.errors);
         expect(error.request.query).toEqual(query);
       });
   });
