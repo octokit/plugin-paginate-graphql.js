@@ -157,9 +157,35 @@ await octokit.graphql.paginate(
 );
 ```
 
+### Options
+
+You can provide a third argument to `paginate` or `iterator` to modify the behavior of the pagination.
+
+`maxPages` will stop the iteration at the specified number of pages, useful when you don't need all the items in the response but still want to take advantage of the automatic merging.
+
+```
+const { repository } = await octokit.graphql.paginate(
+  `query paginate($cursor: String) {
+    repository(owner: "octokit", name: "rest.js") {
+      issues(first: 10, after: $cursor) {
+        nodes {
+          title
+        }
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
+      }
+    }
+  }`,
+  { },
+  { maxPages: 10 },
+);
+```
+
 ### Pagination Direction
 
-You can control the pagination direction by the properties deinfed in the `pageInfo` resource.
+You can control the pagination direction by the properties defined in the `pageInfo` resource.
 
 For a forward pagination, use:
 
