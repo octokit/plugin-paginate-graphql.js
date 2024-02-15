@@ -157,15 +157,18 @@ await octokit.graphql.paginate(
 );
 ```
 
-### Options
+### Early stop when iterating
 
-You can provide a third argument to `paginate` or `iterator` to modify the behavior of the pagination.
+You can provide a third argument, a function, to `paginate` or `iterator` to stop the pagination earlier. The function will be called with two arguments, the first is the content of the most recent page, the second is a `done` function to stop the iteration.
 
-`maxPages` will stop the iteration at the specified number of pages, useful when you don't need all the items in the response but still want to take advantage of the automatic merging.
+For example, you can stop the iteration after a certain number of pages:
 
-```
-const { repository } = await octokit.graphql.paginate(
-  `query paginate($cursor: String) {
+```js
+const maxPages = 2;
+let pages = 0;
+
+await octokit.graphql.paginate(
+  `query paginate ($cursor: String) {
     repository(owner: "octokit", name: "rest.js") {
       issues(first: 10, after: $cursor) {
         nodes {
@@ -178,8 +181,39 @@ const { repository } = await octokit.graphql.paginate(
       }
     }
   }`,
-  { },
-  { maxPages: 10 },
+  {},
+  (_, done) => {
+    pages += 1;
+    if (pages >= maxPages) {
+      done();
+    }
+  },
+);
+```
+
+Or, to stop after you find a certain item:
+
+```js
+await octokit.graphql.paginate(
+  `query paginate ($cursor: String) {
+    repository(owner: "octokit", name: "rest.js") {
+      issues(first: 10, after: $cursor) {
+        nodes {
+          title
+        }
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
+      }
+    }
+  }`,
+  {},
+  (response, done) => {
+    if (response?.repository?.issues?.nodes?.[0].title === "Issue 2") {
+      done();
+    }
+  },
 );
 ```
 
