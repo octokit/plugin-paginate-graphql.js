@@ -159,7 +159,7 @@ await octokit.graphql.paginate(
 
 ### Pagination Direction
 
-You can control the pagination direction by the properties deinfed in the `pageInfo` resource.
+You can control the pagination direction by the properties defined in the `pageInfo` resource.
 
 For a forward pagination, use:
 
