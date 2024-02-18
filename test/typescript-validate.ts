@@ -37,7 +37,7 @@ export async function typedIterator() {
   }
 }
 
-export function pageInfoBackwaredExported(): PageInfoBackward {
+export function pageInfoBackwardExported(): PageInfoBackward {
   return {
     hasPreviousPage: true,
     startCursor: "startCursor",
