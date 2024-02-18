@@ -1,8 +1,8 @@
 import { Octokit } from "@octokit/core";
-import { paginateGraphql } from "../../src/index";
+import { paginateGraphQL } from "../../src/index";
 import fetchMock from "fetch-mock";
 
-const PatchedOctokit = Octokit.plugin(paginateGraphql);
+const PatchedOctokit = Octokit.plugin(paginateGraphQL);
 
 const MockOctokit = ({ responses = [{}] }: { responses?: any[] } = {}) => {
   let calledQueries: string[] = [];
