@@ -106,7 +106,7 @@ describe("pagination", () => {
       `
       query paginate($cursor: String, $organization: String!) {
         repository(owner: $organization, name: "rest.js") {
-          issues(first: 10, after: $curosr) {
+          issues(first: 10, after: $cursor) {
             nodes {
               title
             }
