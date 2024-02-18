@@ -61,7 +61,7 @@ const { repository } = await octokit.graphql.paginate(
 console.log(`Found ${repository.issues.nodes.length} issues!`);
 ```
 
-There are two convetions this plugin relies on:
+There are two conventions this plugin relies on:
 
 1. The name of the cursor variable must be `$cursor`
 2. You must include a valid `pageInfo` object in the paginated resource (see [Pagination Direction](#pagination-direction) for more info on what is considered valid)
