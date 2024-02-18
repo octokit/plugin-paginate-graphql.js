@@ -72,7 +72,7 @@ The `paginateGraphql` plugin adds a new `octokit.graphql.paginate()` method whic
 
 The query gets passed over to the `octokit.graphql()`-function. The response is then scanned for the required `pageInfo`-object. If `hasNextPage` is `true`, it will automatically use the `endCursor` to execute the next query until `hasNextPage` is `false`.
 
-While iterating, it ongoingly merges all `nodes` and/or `edges` of all responses and returns a combined response in the end.
+While iterating, it continually merges all `nodes` and/or `edges` of all responses and returns a combined response in the end.
 
 > **Warning**
 > Please note that this plugin only supports pagination of a single resource - so you can **not** execute queries with parallel or nested pagination. You can find more details in [the chapter below](#unsupported-nested-pagination).
