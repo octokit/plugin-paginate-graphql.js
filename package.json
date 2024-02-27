@@ -28,9 +28,9 @@
     "@octokit/core": ">=5"
   },
   "devDependencies": {
-    "@octokit/core": "^5.0.0",
-    "@octokit/plugin-rest-endpoint-methods": "^10.0.0",
-    "@octokit/tsconfig": "^2.0.0",
+    "@octokit/core": "^6.0.0",
+    "@octokit/plugin-rest-endpoint-methods": "^11.0.0",
+    "@octokit/tsconfig": "^3.0.0",
     "@types/fetch-mock": "^7.3.1",
     "@types/jest": "^29.0.0",
     "@types/node": "^20.0.0",
