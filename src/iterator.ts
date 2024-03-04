@@ -1,5 +1,5 @@
 import { extractPageInfos } from "./extract-page-info";
-import { Octokit } from "@octokit/core";
+import type { Octokit } from "@octokit/core";
 import { getCursorFrom, hasAnotherPage } from "./page-info";
 import { MissingCursorChange } from "./errors";
 
