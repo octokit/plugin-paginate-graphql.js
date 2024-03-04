@@ -1,4 +1,4 @@
-import { Octokit } from "@octokit/core";
+import type { Octokit } from "@octokit/core";
 import { mergeResponses } from "./merge-responses";
 import { createIterator } from "./iterator";
 
