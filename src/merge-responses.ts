@@ -1,4 +1,4 @@
-import { findPaginatedResourcePath, get, set } from "./object-helpers";
+import { findPaginatedResourcePath, get, set } from "./object-helpers.js";
 
 const mergeResponses = <ResponseType extends object = any>(
   response1: ResponseType,

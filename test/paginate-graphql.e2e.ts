@@ -1,5 +1,5 @@
 import { Octokit } from "@octokit/core";
-import { paginateGraphQL } from "../src";
+import { paginateGraphQL } from "../src/index.js";
 
 const PatchedOctokit = Octokit.plugin(paginateGraphQL);
 

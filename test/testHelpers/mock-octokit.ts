@@ -1,5 +1,5 @@
 import { Octokit } from "@octokit/core";
-import { paginateGraphQL } from "../../src/index";
+import { paginateGraphQL } from "../../src/index.js";
 import fetchMock from "fetch-mock";
 
 const PatchedOctokit = Octokit.plugin(paginateGraphQL);

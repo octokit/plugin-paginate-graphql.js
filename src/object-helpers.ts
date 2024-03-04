@@ -1,4 +1,4 @@
-import { MissingPageInfo } from "./errors";
+import { MissingPageInfo } from "./errors.js";
 
 const isObject = (value: any) =>
   Object.prototype.toString.call(value) === "[object Object]";

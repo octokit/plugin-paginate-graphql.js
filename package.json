@@ -3,18 +3,18 @@
   "publishConfig": {
     "access": "public"
   },
+  "type": "module",
   "version": "0.0.0-development",
   "description": "Octokit plugin to paginate GraphQL API endpoint responses",
-  "main": "index.js",
   "scripts": {
     "build": "node scripts/build.mjs && tsc -p tsconfig.json",
     "lint": "prettier --check '{src,test}/**/*' README.md package.json",
     "lint:fix": "prettier --write '{src,test}/**/*' README.md package.json",
     "pretest": "npm run -s lint",
-    "test": "jest --coverage",
+    "test": "NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\" npx jest --coverage",
     "test:typescript": "npx tsc --noEmit --declaration --noUnusedLocals --esModuleInterop --strict test/typescript-validate.ts",
-    "test:watch": "jest --watch",
-    "test:e2e": "jest --testRegex test/*.e2e.ts"
+    "test:watch": "NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\" npx jest --watch",
+    "test:e2e": "NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\" npx jest --testRegex test/*.e2e.ts"
   },
   "repository": "github:octokit/plugin-paginate-graphql.js",
   "keywords": [
@@ -25,12 +25,12 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@octokit/core": ">=5"
+    "@octokit/core": ">=6"
   },
   "devDependencies": {
-    "@octokit/core": "^5.0.0",
-    "@octokit/plugin-rest-endpoint-methods": "^10.0.0",
-    "@octokit/tsconfig": "^2.0.0",
+    "@octokit/core": "^6.0.0",
+    "@octokit/plugin-rest-endpoint-methods": "^11.0.0",
+    "@octokit/tsconfig": "^3.0.0",
     "@types/fetch-mock": "^7.3.1",
     "@types/jest": "^29.0.0",
     "@types/node": "^20.0.0",
@@ -46,11 +46,15 @@
   },
   "jest": {
     "preset": "ts-jest",
+    "extensionsToTreatAsEsm": [
+      ".ts"
+    ],
     "transform": {
       "^.+\\.(ts|tsx)$": [
         "ts-jest",
         {
-          "tsconfig": "test/tsconfig.test.json"
+          "tsconfig": "test/tsconfig.test.json",
+          "useESM": true
         }
       ]
     },
@@ -64,6 +68,9 @@
         "functions": 100,
         "lines": 100
       }
+    },
+    "moduleNameMapper": {
+      "^(.+)\\.jsx?$": "$1"
     }
   },
   "release": {

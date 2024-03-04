@@ -30,8 +30,8 @@ Node
 Install with `npm install @octokit/core @octokit/plugin-paginate-graphql`. Optionally replace `@octokit/core` with a core-compatible module
 
 ```js
-const { Octokit } = require("@octokit/core");
-const { paginateGraphQL } = require("@octokit/plugin-paginate-graphql");
+import { Octokit } from "@octokit/core";
+import { paginateGraphQL } from "@octokit/plugin-paginate-graphql";
 ```
 
 </td></tr>

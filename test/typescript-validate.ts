@@ -3,8 +3,12 @@
 // ************************************************************
 
 import { Octokit } from "@octokit/core";
-import { paginateGraphQL, PageInfoBackward, PageInfoForward } from "../src";
-import { TestResponseType } from "./testHelpers/mock-response";
+import {
+  paginateGraphQL,
+  PageInfoBackward,
+  PageInfoForward,
+} from "../src/index.js";
+import { TestResponseType } from "./testHelpers/mock-response.js";
 
 const MyOctokit = Octokit.plugin(paginateGraphQL);
 const octokit = new MyOctokit();

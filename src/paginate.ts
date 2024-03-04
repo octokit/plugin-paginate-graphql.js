@@ -1,6 +1,6 @@
-import { Octokit } from "@octokit/core";
-import { mergeResponses } from "./merge-responses";
-import { createIterator } from "./iterator";
+import type { Octokit } from "@octokit/core";
+import { mergeResponses } from "./merge-responses.js";
+import { createIterator } from "./iterator.js";
 
 const createPaginate = (octokit: Octokit) => {
   const iterator = createIterator(octokit);
