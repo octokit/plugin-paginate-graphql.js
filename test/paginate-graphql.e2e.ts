@@ -1,7 +1,7 @@
 import { Octokit } from "@octokit/core";
-import { paginateGraphql } from "../src";
+import { paginateGraphQL } from "../src/index.js";
 
-const PatchedOctokit = Octokit.plugin(paginateGraphql);
+const PatchedOctokit = Octokit.plugin(paginateGraphQL);
 
 const token = process.env.E2E_GITHUB_TOKEN;
 if (!token) {

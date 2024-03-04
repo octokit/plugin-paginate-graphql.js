@@ -1,7 +1,7 @@
-import { extractPageInfos } from "./extract-page-info";
+import { extractPageInfos } from "./extract-page-info.js";
 import type { Octokit } from "@octokit/core";
-import { getCursorFrom, hasAnotherPage } from "./page-info";
-import { MissingCursorChange } from "./errors";
+import { getCursorFrom, hasAnotherPage } from "./page-info.js";
+import { MissingCursorChange } from "./errors.js";
 
 const createIterator = (octokit: Octokit) => {
   return <ResponseType = any>(

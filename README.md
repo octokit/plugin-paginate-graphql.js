@@ -18,7 +18,7 @@ Load `@octokit/plugin-paginate-graphql` and [`@octokit/core`](https://github.com
 ```html
 <script type="module">
   import { Octokit } from "https://esm.sh/@octokit/core";
-  import { paginateGraphql } from "https://esm.sh/@octokit/plugin-paginate-graphql";
+  import { paginateGraphQL } from "https://esm.sh/@octokit/plugin-paginate-graphql";
 </script>
 ```
 
@@ -30,8 +30,8 @@ Node
 Install with `npm install @octokit/core @octokit/plugin-paginate-graphql`. Optionally replace `@octokit/core` with a core-compatible module
 
 ```js
-const { Octokit } = require("@octokit/core");
-const { paginateGraphql } = require("@octokit/plugin-paginate-graphql");
+import { Octokit } from "@octokit/core";
+import { paginateGraphQL } from "@octokit/plugin-paginate-graphql";
 ```
 
 </td></tr>
@@ -39,7 +39,7 @@ const { paginateGraphql } = require("@octokit/plugin-paginate-graphql");
 </table>
 
 ```js
-const MyOctokit = Octokit.plugin(paginateGraphql);
+const MyOctokit = Octokit.plugin(paginateGraphQL);
 const octokit = new MyOctokit({ auth: "secret123" });
 
 const { repository } = await octokit.graphql.paginate(
@@ -61,18 +61,18 @@ const { repository } = await octokit.graphql.paginate(
 console.log(`Found ${repository.issues.nodes.length} issues!`);
 ```
 
-There are two convetions this plugin relies on:
+There are two conventions this plugin relies on:
 
 1. The name of the cursor variable must be `$cursor`
 2. You must include a valid `pageInfo` object in the paginated resource (see [Pagination Direction](#pagination-direction) for more info on what is considered valid)
 
 ## `octokit.graphql.paginate()`
 
-The `paginateGraphql` plugin adds a new `octokit.graphql.paginate()` method which accepts a query with a single `$cursor` variable that is used to paginate.
+The `paginateGraphQL` plugin adds a new `octokit.graphql.paginate()` method which accepts a query with a single `$cursor` variable that is used to paginate.
 
 The query gets passed over to the `octokit.graphql()`-function. The response is then scanned for the required `pageInfo`-object. If `hasNextPage` is `true`, it will automatically use the `endCursor` to execute the next query until `hasNextPage` is `false`.
 
-While iterating, it ongoingly merges all `nodes` and/or `edges` of all responses and returns a combined response in the end.
+While iterating, it continually merges all `nodes` and/or `edges` of all responses and returns a combined response in the end.
 
 > **Warning**
 > Please note that this plugin only supports pagination of a single resource - so you can **not** execute queries with parallel or nested pagination. You can find more details in [the chapter below](#unsupported-nested-pagination).
@@ -159,7 +159,7 @@ await octokit.graphql.paginate(
 
 ### Pagination Direction
 
-You can control the pagination direction by the properties deinfed in the `pageInfo` resource.
+You can control the pagination direction by the properties defined in the `pageInfo` resource.
 
 For a forward pagination, use:
 
@@ -183,7 +183,7 @@ If you provide all 4 properties in a `pageInfo`, the plugin will default to forw
 
 ### Unsupported: Nested pagination
 
-Nested pagination with GraphlQL is complicated, so the following **is not supported**:
+Nested pagination with GraphQL is complicated, so the following **is not supported**:
 
 ```js
 await octokit.graphql.paginate((cursor) => {
@@ -218,7 +218,7 @@ There is a great video from GitHub Universe 2019 [Advanced patterns for GitHub's
 
 ### TypeScript Support
 
-You can type the response of the `paginateGraphql()` and `iterator()` functions like this:
+You can type the response of the `paginateGraphQL()` and `iterator()` functions like this:
 
 ```ts
 await octokit.graphql.paginate<RepositoryIssueResponseType>((cursor) => {
