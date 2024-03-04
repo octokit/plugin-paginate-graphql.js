@@ -3,10 +3,10 @@
 // ************************************************************
 
 import { Octokit } from "@octokit/core";
-import { paginateGraphql, PageInfoBackward, PageInfoForward } from "../src";
+import { paginateGraphQL, PageInfoBackward, PageInfoForward } from "../src";
 import { TestResponseType } from "./testHelpers/mock-response";
 
-const MyOctokit = Octokit.plugin(paginateGraphql);
+const MyOctokit = Octokit.plugin(paginateGraphQL);
 const octokit = new MyOctokit();
 
 const query = `
@@ -37,7 +37,7 @@ export async function typedIterator() {
   }
 }
 
-export function pageInfoBackwaredExported(): PageInfoBackward {
+export function pageInfoBackwardExported(): PageInfoBackward {
   return {
     hasPreviousPage: true,
     startCursor: "startCursor",

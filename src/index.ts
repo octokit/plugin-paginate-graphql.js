@@ -3,7 +3,7 @@ import { createIterator } from "./iterator";
 import { createPaginate } from "./paginate";
 export type { PageInfoForward, PageInfoBackward } from "./page-info";
 
-export function paginateGraphql(octokit: Octokit) {
+export function paginateGraphQL(octokit: Octokit) {
   octokit.graphql;
   return {
     graphql: Object.assign(octokit.graphql, {
