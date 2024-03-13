@@ -2,6 +2,7 @@ import type { Octokit } from "@octokit/core";
 import { createIterator } from "./iterator.js";
 import { createPaginate } from "./paginate.js";
 export type { PageInfoForward, PageInfoBackward } from "./page-info.js";
+export { VERSION } from "./version.js";
 
 type paginateGraphQLInterface = {
   graphql: Octokit["graphql"] & {
