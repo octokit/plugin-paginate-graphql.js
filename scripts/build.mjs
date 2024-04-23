@@ -60,7 +60,6 @@ async function main() {
       {
         ...pkg,
         files: ["dist-*/**", "bin/**"],
-        main: "dist-bundle/index.js",
         types: "dist-types/index.d.ts",
         exports: {
           ".": {
