@@ -4,7 +4,7 @@ import { createPaginate } from "./paginate.js";
 export type { PageInfoForward, PageInfoBackward } from "./page-info.js";
 export { VERSION } from "./version.js";
 
-type paginateGraphQLInterface = {
+export type paginateGraphQLInterface = {
   graphql: Octokit["graphql"] & {
     paginate: ReturnType<typeof createPaginate> & {
       iterator: ReturnType<typeof createIterator>;
