@@ -23,7 +23,7 @@ const deepFindPathToProperty = (
     const currentPath = [...path, key];
     const currentValue = object[key];
 
-    if (currentValue.hasOwnProperty(searchProp)) {
+    if (!!currentValue && currentValue.hasOwnProperty(searchProp)) {
       return currentPath;
     }
 
