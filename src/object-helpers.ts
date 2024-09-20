@@ -4,11 +4,11 @@ const isObject = (value: any) =>
   Object.prototype.toString.call(value) === "[object Object]";
 
 function findPaginatedResourcePath(responseData: any): string[] {
-  const paginatedResourcePath = deepFindPathToProperty(
+  const paginatedResourcePath: string[] | null = deepFindPathToProperty(
     responseData,
     "pageInfo",
   );
-  if (paginatedResourcePath.length === 0) {
+  if (paginatedResourcePath === null || paginatedResourcePath.length === 0) {
     throw new MissingPageInfo(responseData);
   }
   return paginatedResourcePath;
