@@ -1,6 +1,8 @@
 import { MissingPageInfo } from "./errors.js";
 
-const isObject = (value: any) =>
+type unknownObject = Record<string | number | symbol, unknown>;
+
+const isObject = (value: unknown): value is unknownObject =>
   Object.prototype.toString.call(value) === "[object Object]";
 
 function findPaginatedResourcePath(responseData: any): string[] {
@@ -15,7 +17,7 @@ function findPaginatedResourcePath(responseData: any): string[] {
 }
 
 const deepFindPathToProperty = (
-  object: any,
+  object: unknownObject,
   searchProp: string,
   path: string[] = [],
 ): string[] => {
@@ -23,11 +25,11 @@ const deepFindPathToProperty = (
     const currentPath = [...path, key];
     const currentValue = object[key];
 
-    if (currentValue.hasOwnProperty(searchProp)) {
-      return currentPath;
-    }
-
     if (isObject(currentValue)) {
+      if (currentValue.hasOwnProperty(searchProp)) {
+        return currentPath;
+      }
+
       const result = deepFindPathToProperty(
         currentValue,
         searchProp,
