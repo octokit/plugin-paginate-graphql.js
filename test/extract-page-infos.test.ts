@@ -1,3 +1,4 @@
+import { MissingPageInfo } from "../src/errors.js";
 import { extractPageInfos } from "../src/extract-page-info.js";
 import type { PageInfoContext } from "../src/page-info.js";
 
@@ -62,5 +63,11 @@ describe("extractPageInfos()", (): void => {
       pageInfo: { hasNextPage: false, endCursor: null },
       pathInQuery: ["data", "repository", "issues"],
     });
+  });
+
+  it("throws a MissingPageInfo error if the response has unexpected structure", async (): Promise<void> => {
+    expect(() => extractPageInfos({ unknown1: null, unknown2: 42 })).toThrow(
+      MissingPageInfo,
+    );
   });
 });
