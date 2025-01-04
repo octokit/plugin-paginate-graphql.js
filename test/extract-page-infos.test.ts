@@ -1,3 +1,4 @@
+import { describe, expect, it } from "vitest";
 import { MissingPageInfo } from "../src/errors.js";
 import { extractPageInfos } from "../src/extract-page-info.js";
 import type { PageInfoContext } from "../src/page-info.js";

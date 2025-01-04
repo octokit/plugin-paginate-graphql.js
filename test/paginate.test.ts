@@ -1,3 +1,4 @@
+import { describe, expect, it } from "vitest";
 import fetchMock from "fetch-mock";
 import { MissingCursorChange, MissingPageInfo } from "../src/errors.js";
 import type { PageInfo } from "../src/page-info.js";
