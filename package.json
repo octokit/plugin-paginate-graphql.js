@@ -12,9 +12,9 @@
     "lint": "prettier --check '{src,test}/**/*' README.md package.json",
     "lint:fix": "prettier --write '{src,test}/**/*' README.md package.json",
     "pretest": "npm run -s lint && npm run build",
-    "test": "vitest run --coverage test/**/*.test.ts",
+    "test": "vitest run --coverage test/*.test.ts",
     "test:typescript": "npx tsc --noEmit --declaration --noUnusedLocals --esModuleInterop --strict --module node16 --moduleResolution node16 --exactOptionalPropertyTypes --strict test/typescript-validate.ts",
-    "test:watch": "vitest watch test/**/*.test.ts",
+    "test:watch": "vitest watch test/*.test.ts",
     "test:e2e": "vitest test/*.e2e.ts"
   },
   "repository": "github:octokit/plugin-paginate-graphql.js",
