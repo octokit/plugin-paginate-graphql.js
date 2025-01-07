@@ -1,3 +1,4 @@
+import { describe, expect, it } from "vitest";
 import { Octokit } from "@octokit/core";
 import { paginateGraphQL } from "../src/index.js";
 

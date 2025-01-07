@@ -1,3 +1,4 @@
+import { describe, expect, it } from "vitest";
 import { mergeResponses } from "../src/merge-responses.js";
 
 describe(".mergeResponses()", (): void => {

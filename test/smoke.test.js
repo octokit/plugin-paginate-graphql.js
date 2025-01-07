@@ -1,3 +1,4 @@
+import { describe, expect, it } from "vitest";
 import { paginateGraphQL, VERSION } from "../pkg/dist-bundle/index.js";
 
 describe("Test package exports", () => {
