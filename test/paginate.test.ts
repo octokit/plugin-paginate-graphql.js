@@ -283,6 +283,94 @@ describe("pagination", () => {
     ]);
   });
 
+  it(".paginate.iterator() allows users to pass `stopFunction` and stops at the right place.", async (): Promise<void> => {
+    const responses = createResponsePages({ amount: 3 });
+
+    const { octokit, getCallCount, getPassedVariablesForCall } = MockOctokit({
+      responses,
+    });
+
+    const maxPages = 2;
+    let pages = 0;
+
+    const actualResponse = await octokit.graphql.paginate<TestResponseType>(
+      `query paginate ($cursor: String) {
+        repository(owner: "octokit", name: "rest.js") {
+          issues(first: 10, after: $cursor) {
+            nodes {
+              title
+            }
+            pageInfo {
+              hasNextPage
+              endCursor
+            }
+          }
+        }
+      }`,
+      {},
+      (_, done) => {
+        pages += 1;
+        if (pages >= maxPages) {
+          done();
+        }
+      },
+    );
+
+    expect(actualResponse).toEqual({
+      repository: {
+        issues: {
+          nodes: [{ title: "Issue 1" }, { title: "Issue 2" }],
+          pageInfo: { hasNextPage: true, endCursor: "endCursor2" },
+        },
+      },
+    });
+    expect(getCallCount()).toBe(2);
+    expect(getPassedVariablesForCall(1)).toBeUndefined();
+    expect(getPassedVariablesForCall(2)).toEqual({ cursor: "endCursor1" });
+  });
+
+  it(".paginate.iterator() allows users to pass `stopFunction` and stops at the right place.", async (): Promise<void> => {
+    const responses = createResponsePages({ amount: 3 });
+
+    const { octokit, getCallCount, getPassedVariablesForCall } = MockOctokit({
+      responses,
+    });
+
+    const actualResponse = await octokit.graphql.paginate<TestResponseType>(
+      `query paginate ($cursor: String) {
+        repository(owner: "octokit", name: "rest.js") {
+          issues(first: 10, after: $cursor) {
+            nodes {
+              title
+            }
+            pageInfo {
+              hasNextPage
+              endCursor
+            }
+          }
+        }
+      }`,
+      {},
+      (response, done) => {
+        if (response?.repository?.issues?.nodes?.[0].title === "Issue 2") {
+          done();
+        }
+      },
+    );
+
+    expect(actualResponse).toEqual({
+      repository: {
+        issues: {
+          nodes: [{ title: "Issue 1" }, { title: "Issue 2" }],
+          pageInfo: { hasNextPage: true, endCursor: "endCursor2" },
+        },
+      },
+    });
+    expect(getCallCount()).toBe(2);
+    expect(getPassedVariablesForCall(1)).toBeUndefined();
+    expect(getPassedVariablesForCall(2)).toEqual({ cursor: "endCursor1" });
+  });
+
   it("paginate() throws error with path and variable name if cursors do not change between calls.", async (): Promise<void> => {
     const [responsePage1, responsePage2] = createResponsePages({ amount: 2 });
     responsePage2.repository.issues.pageInfo = {
