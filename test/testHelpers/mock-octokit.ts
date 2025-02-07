@@ -8,7 +8,7 @@ const MockOctokit = ({ responses = [{}] }: { responses?: any[] } = {}) => {
   let calledQueries: string[] = [];
   let passedVariables: any[] = [];
   let callCount = 0;
-  const mock = fetchMock.sandbox().post(
+  const mock = fetchMock.createInstance().post(
     "https://api.github.com/graphql",
     (_, options) => {
       calledQueries.push(JSON.parse(options.body!.toString()).query);
@@ -21,7 +21,7 @@ const MockOctokit = ({ responses = [{}] }: { responses?: any[] } = {}) => {
 
   const octokit = new PatchedOctokit({
     request: {
-      fetch: mock,
+      fetch: mock.fetchHandler,
     },
   });
 

@@ -372,10 +372,12 @@ describe("pagination", () => {
       ],
     };
     const mock = fetchMock
-      .sandbox()
+      .createInstance()
       .post("https://api.github.com/graphql", mockResponse);
 
-    const octokit = new PatchedOctokit({ request: { fetch: mock } });
+    const octokit = new PatchedOctokit({
+      request: { fetch: mock.fetchHandler },
+    });
     const query = `{
         viewer {
           bioHtml
@@ -398,11 +400,15 @@ describe("pagination", () => {
   });
 
   it(".paginate() passes 500 errors on.", async (): Promise<void> => {
-    const mock = fetchMock.sandbox().post("https://api.github.com/graphql", {
-      status: 500,
-    });
+    const mock = fetchMock
+      .createInstance()
+      .post("https://api.github.com/graphql", {
+        status: 500,
+      });
 
-    const octokit = new PatchedOctokit({ request: { fetch: mock } });
+    const octokit = new PatchedOctokit({
+      request: { fetch: mock.fetchHandler },
+    });
     const func = async () =>
       await octokit.graphql.paginate<TestResponseType>(`
       query paginate($cursor: String) {
