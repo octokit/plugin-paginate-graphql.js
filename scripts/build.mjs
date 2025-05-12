@@ -36,7 +36,7 @@ async function main() {
 
   const entryPoints = ["./pkg/dist-src/index.js"];
 
- await esbuild.build({
+  await esbuild.build({
     entryPoints,
     outdir: "pkg/dist-bundle",
     bundle: true,
@@ -67,13 +67,13 @@ async function main() {
             import: "./dist-bundle/index.js",
             // Tooling currently are having issues with the "exports" field when there is no "default", ex: TypeScript, eslint, ncc
             default: "./dist-bundle/index.js",
-          }
+          },
         },
         sideEffects: false,
       },
       null,
-      2
-    )
+      2,
+    ),
   );
 }
 main();
