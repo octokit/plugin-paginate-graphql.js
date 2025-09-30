@@ -7,19 +7,25 @@ const createIterator = (octokit: Octokit) => {
   return <ResponseType = any>(
     query: string,
     initialParameters: Record<string, any> = {},
+    stopFunction?: (response: ResponseType, done: () => void) => void,
   ) => {
     let nextPageExists = true;
+    let stopEarly = false;
     let parameters = { ...initialParameters };
 
     return {
       [Symbol.asyncIterator]: () => ({
         async next() {
-          if (!nextPageExists) return { done: true, value: {} as ResponseType };
+          if (!nextPageExists || stopEarly) {
+            return { done: true, value: {} as ResponseType };
+          }
 
           const response = await octokit.graphql<ResponseType>(
             query,
             parameters,
           );
+
+          stopFunction?.(response, () => (stopEarly = true));
 
           const pageInfoContext = extractPageInfos(response);
           const nextCursorValue = getCursorFrom(pageInfoContext.pageInfo);
