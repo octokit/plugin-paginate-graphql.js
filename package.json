@@ -39,7 +39,6 @@
     "prettier": "3.5.3",
     "semantic-release-plugin-update-version-in-files": "^2.0.0",
     "tinyglobby": "^0.2.13",
-    "ts-jest": "^29.0.0",
     "typescript": "^5.0.0",
     "vitest": "^3.0.0"
   },
