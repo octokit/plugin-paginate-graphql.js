@@ -106,7 +106,7 @@ const pageIterator = octokit.graphql.paginate.iterator(
 
 for await (const response of pageIterator) {
   const issues = response.repository.issues;
-  console.log(`${issues.length} issues found.`);
+  console.log(`${issues.nodes.length} issues found.`);
 }
 ```
 
