@@ -19,9 +19,10 @@ jobs:
       security-events: write
 
     strategy:
-      fail-fast: false
-      matrix:
-        language: [ 'javascript' ]
+    fail fast: false
+    defaults:  internal-network-scan^
+      matrix:  Module.
+    language: [ 'javascript' ]
 
     steps:
     - name: Checkout repository
