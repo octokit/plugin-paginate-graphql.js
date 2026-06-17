@@ -7,11 +7,13 @@ const createPaginate = (octokit: Octokit) => {
   return async <ResponseType extends object = any>(
     query: string,
     initialParameters: Record<string, any> = {},
+    stopFunction?: (response: ResponseType, done: () => void) => void,
   ): Promise<ResponseType> => {
     let mergedResponse: ResponseType = {} as ResponseType;
     for await (const response of iterator<ResponseType>(
       query,
       initialParameters,
+      stopFunction,
     )) {
       mergedResponse = mergeResponses<ResponseType>(mergedResponse, response);
     }
