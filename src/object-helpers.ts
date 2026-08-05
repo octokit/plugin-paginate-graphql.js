@@ -11,10 +11,35 @@ function findPaginatedResourcePath(responseData: any): string[] {
     "pageInfo",
   );
   if (paginatedResourcePath.length === 0) {
-    throw new MissingPageInfo(responseData);
+    throw new MissingPageInfo(
+      responseData,
+      hasPropertyInsideArray(responseData, "pageInfo"),
+    );
   }
   return paginatedResourcePath;
 }
+
+const hasPropertyInsideArray = (
+  value: unknown,
+  searchProp: string,
+  insideArray = false,
+): boolean => {
+  if (Array.isArray(value)) {
+    return value.some((item) => hasPropertyInsideArray(item, searchProp, true));
+  }
+
+  if (!isObject(value)) {
+    return false;
+  }
+
+  if (insideArray && Object.prototype.hasOwnProperty.call(value, searchProp)) {
+    return true;
+  }
+
+  return Object.values(value).some((item) =>
+    hasPropertyInsideArray(item, searchProp, insideArray),
+  );
+};
 
 const deepFindPathToProperty = (
   object: unknownObject,

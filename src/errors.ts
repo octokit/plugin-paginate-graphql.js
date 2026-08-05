@@ -24,13 +24,16 @@ class MissingCursorChange extends Error {
 class MissingPageInfo extends Error {
   override name = "MissingPageInfo";
 
-  constructor(readonly response: any) {
+  constructor(
+    readonly response: any,
+    pageInfoInsideArray = false,
+  ) {
     super(
-      `No pageInfo property found in response. Please make sure to specify the pageInfo in your query. Response-Data: ${JSON.stringify(
-        response,
-        null,
-        2,
-      )}`,
+      `No pageInfo property found in response. Please make sure to specify the pageInfo in your query.${
+        pageInfoInsideArray
+          ? " A pageInfo property was found inside an array, which is not supported. If you are querying a single node, use `node` instead of `nodes` so the paginated resource is not wrapped in an array."
+          : ""
+      } Response-Data: ${JSON.stringify(response, null, 2)}`,
     );
 
     if (Error.captureStackTrace) {
