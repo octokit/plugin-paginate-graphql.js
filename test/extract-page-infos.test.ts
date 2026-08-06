@@ -71,4 +71,21 @@ describe("extractPageInfos()", (): void => {
       MissingPageInfo,
     );
   });
+
+  it("explains that pageInfo inside an array is not supported", () => {
+    const queryResult = {
+      nodes: [
+        {
+          timelineItems: {
+            pageInfo: { hasNextPage: false, endCursor: null },
+            nodes: [],
+          },
+        },
+      ],
+    };
+
+    expect(() => extractPageInfos(queryResult)).toThrow(
+      "A pageInfo property was found inside an array, which is not supported. If you are querying a single node, use `node` instead of `nodes`",
+    );
+  });
 });
