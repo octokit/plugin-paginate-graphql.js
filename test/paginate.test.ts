@@ -346,12 +346,68 @@ describe("pagination", () => {
       throw new Error("Should not succeed!");
     } catch (err: any) {
       expect(err).toBeInstanceOf(MissingPageInfo);
+      expect(err.pageInfoUnderArray).toBeUndefined();
       expect(err.message).toEqual(
-        `No pageInfo property found in response. Please make sure to specify the pageInfo in your query. Response-Data: ${JSON.stringify(
+        `No pageInfo property found in the response. Please make sure to specify the pageInfo selection in your query, and that it is reachable from the query root, i.e. that it is not nested inside an array such as "nodes" or "edges". Response-Data: ${JSON.stringify(
           response,
           null,
           2,
         )}`,
+      );
+    }
+  });
+
+  it("paginate() errors with the location of a pageInfo nested inside an array", async (): Promise<void> => {
+    // https://github.com/octokit/plugin-paginate-graphql.js/issues/238
+    const response = {
+      nodes: [
+        {
+          timelineItems: {
+            pageInfo: {
+              hasNextPage: false,
+              endCursor: "Y3Vyc29yOnYyOpPPAAABj8psBWAAqjIxNDAyNTEyNjY=",
+            },
+            nodes: [{ __typename: "IssueComment" }],
+          },
+        },
+      ],
+    };
+
+    const { octokit } = MockOctokit({ responses: [response] });
+
+    try {
+      await octokit.graphql.paginate(`
+      query paginate($cursor: String) {
+        nodes(ids: ["MDU6SXNzdWUxMDA1NzMzMzY2"]) {
+          ... on Issue {
+            timelineItems(first: 100, after: $cursor, itemTypes: [ISSUE_COMMENT]) {
+              pageInfo {
+                endCursor
+                hasNextPage
+              }
+              nodes {
+                __typename
+              }
+            }
+          }
+        }
+      }`);
+      throw new Error("Should not succeed!");
+    } catch (err: any) {
+      expect(err).toBeInstanceOf(MissingPageInfo);
+      expect(err.response).toEqual(response);
+
+      // The plugin can point at the exact path that cannot be resolved
+      expect(err.pageInfoUnderArray).toEqual("nodes[].timelineItems");
+
+      expect(err.message).toEqual(
+        `No pageInfo property found at a path that is reachable from the query root. Found a pageInfo selection at "nodes[].timelineItems" instead, which is nested inside an array.
+
+A pageInfo can only be paginated if it is reachable from the query root by traversing plain objects, where "[]" marks an array. The plugin cannot tell which item of an array the connection belongs to: a list such as "nodes" or "edges" can return a different number of items on every request, so the cursor to send back would be ambiguous.
+
+To fix the query, move the pageInfo selection out of the array, for example by querying the singular field that returns a single item instead of the list field ("node(id: ...)" instead of "nodes(ids: ...)"), or by requesting the connection from the top level of the query instead of from within a list.
+
+Response-Data: ${JSON.stringify(response, null, 2)}`,
       );
     }
   });
